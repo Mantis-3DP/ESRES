@@ -1,0 +1,4 @@
+Cooling capacity:,Dew point temperature:,Air inlet temperature:,Mean temperature difference:,Estimated fan power:,Estimated defrost power:,Transmission:,Infiltration:,Ice on evaporator:,Goods total:,"    Goods, cooling:","    Goods, respiration:",Light:,People:,Fans:,Other:,Defrost:,Measure
+2.332,-3.3,5,8.3,210,1510,0.807,0.262,0.017,0.437,0.437,0,0.069,0.07,0.21,0,0.007,Nothing
+2.95,-3.3,5,8.3,400,1510,1.059,0.58,0.048,0.546,0.546,0,0.037,1,0.4,0,0.126,People
+2.332,-3.3,5,8.3,92.58,720.8,1.241,0.437,0.029,0,0,0,1,0.028,0.093,0,0.013,Light
