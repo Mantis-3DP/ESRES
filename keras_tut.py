@@ -47,6 +47,14 @@ from sklearn.svm import SVC
 import scikitplot as skplt
 from keras.callbacks import TensorBoard
 
+
+
+####
+
+
+
+
+
 def scatter_plot():
     # Visualize the data sets
     plt.figure(figsize=(16, 6))
@@ -79,8 +87,7 @@ def create_custom_model(input_dim, output_dim, nodes, n=2, name='model'):
         model.add(Dense(output_dim, activation='softmax'))
 
         # Compile model
-        model.compile(loss='categorical_crossentropy',
-                      optimizer='adam',
+        model.compile(Adam(lr=0.001), loss='categorical_crossentropy',
                       metrics=['accuracy'])
         return model
     return create_model
@@ -115,15 +122,43 @@ scaler = MinMaxScaler(feature_range=(0, 1))
 X_scaled= scaler.fit_transform(train_samples)
 
 X_train, X_test, Y_train, Y_test = train_test_split(
-    X_scaled, Y, test_size=0.5, random_state=2)
+    X_scaled, Y, test_size=0.1, random_state=2)
 
 n_features = X.shape[1]
 n_classes = Y.shape[1]
 
 
+models = [create_custom_model(n_features, n_classes, 10, n=i, name='model_{}'.format(i))
+          for i in range(1, 4)]
+
+for create_model in models:
+    create_model().summary()
+
+history_dict = {}
+
+# TensorBoard Callback
+cb = TensorBoard()
+
+for create_model in models:
+    model = create_model()
+    print('Model name:', model.name)
+    #history_callback =\
+    model.fit(X_train, Y_train,
+                                 batch_size=1,
+                                 epochs=100,
+                                 #verbose=0,
+                                 validation_data=(X_test, Y_test),
+                                 callbacks=[cb])
+    score = model.evaluate(X_test, Y_test, verbose=0)
+    print('Test loss:', score[0])
+    print('Test accuracy:', score[1])
+
+#  history_dict[model.name] = [history_callback, model]
 
 
 
+
+'''
 model = Sequential()
 model.add(Dense(20, input_dim=(17), activation='relu')) #hidden layer hat 12 Möglichkeiten, input sind 8 Datasets
 model.add(Dense(15, activation='relu')) #das ist das zweite hidden layer mit 8 Knoten
@@ -135,7 +170,7 @@ model.fit(x=X_train, y=Y_train, validation_data=(X_test, Y_test), batch_size=1, 
 score = model.evaluate(X_test, Y_test, verbose=0)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
-
+'''
 '''
 test_samples = dataset_vali[:, :17]
 test_labels = dataset_vali[:, 17]
