@@ -1,4 +1,7 @@
-Cooling capacity:,Dew point temperature:,Air inlet temperature:,Mean temperature difference:,Estimated fan power:,Estimated defrost power:,Transmission:,Infiltration:,Ice on evaporator:,Goods total:,"    Goods, cooling:","    Goods, respiration:",Light:,People:,Fans:,Other:,Defrost:,Measure
-2.332,-3.3,5,8.3,210,1510,0.807,0.262,0.017,0.437,0.437,0,0.069,0.07,0.21,0,0.007,Nothing
-2.95,-3.3,5,8.3,400,1510,1.059,0.58,0.048,0.546,0.546,0,0.037,1,0.4,0,0.126,People
-2.332,-3.3,5,8.3,92.58,720.8,1.241,0.437,0.029,0,0,0,1,0.028,0.093,0,0.013,Light
+Transmission:,Infiltration:,Ice on evaporator:,Goods total:,"    Goods, cooling:","    Goods, respiration:",Light:,People:,Fans:,Other:,Defrost:,Measure
+1.11,0.586,0,0,0,0,0.133,0.057,0.083,0,0.008,nothing
+1.059,0.58,0.048,0.546,0.546,0,0.037,0.014,0.4,0,0.126,nothing
+1.303,0.437,0.029,1.092,1.092,0,0.028,1,0.156,0,0,people
+1.363,0.387,0.029,0.546,0.546,0,0.028,1,0.142,3,0,people
+1.363,0.387,0.029,0.546,0.546,0,1,0.028,0.142,0,0,light
+1.411,0.359,0.021,1.574,1.574,0,1,0.032,0.184,0,0.004,light
