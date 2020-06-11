@@ -1,81 +1,18 @@
 import pandas as pd
 import numpy as np
-from sklearn.metrics import confusion_matrix
-import itertools
 import matplotlib.pyplot as plt
-from pandas.plotting import scatter_matrix
-from matplotlib import pyplot
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import classification_report
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import accuracy_score
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.naive_bayes import GaussianNB
-from sklearn.svm import SVC
 from keras.models import Sequential
 from keras.layers import Dense
-from keras.wrappers.scikit_learn import KerasClassifier
-from keras.utils import np_utils
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import KFold
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, MinMaxScaler
-from sklearn.pipeline import Pipeline
-from pandas import read_csv
 from pathlib import Path
 from sklearn.utils import shuffle
-from sklearn import preprocessing
-import tensorflow as tf
-from tensorflow import keras
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Activation, Dense
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.metrics import categorical_crossentropy
-from sklearn import svm, datasets
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import plot_confusion_matrix
-from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt  # doctest: +SKIP
-from sklearn.datasets import make_classification
-from sklearn.metrics import plot_confusion_matrix
 from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
-import scikitplot as skplt
 from keras.callbacks import TensorBoard
 import seaborn as sns
-
-
-
-####
-
-
-
-
-
-def scatter_plot():
-    # Visualize the data sets
-    plt.figure(figsize=(16, 6))
-    plt.subplot(1, 2, 1)
-    for target, target_name in enumerate(names):
-        X_plot = X[y == target]
-        plt.plot(X_plot[:, 0], X_plot[:, 1], linestyle='none', marker='o', label=target_name)
-    plt.xlabel(feature_names[0])
-    plt.ylabel(feature_names[1])
-    plt.axis('equal')
-    plt.legend();
-
-    plt.subplot(1, 2, 2)
-    for target, target_name in enumerate(names):
-        X_plot = X[y == target]
-        plt.plot(X_plot[:, 2], X_plot[:, 3], linestyle='none', marker='o', label=target_name)
-    plt.xlabel(feature_names[2])
-    plt.ylabel(feature_names[3])
-    plt.axis('equal')
-    plt.legend()
 
 
 
@@ -96,7 +33,7 @@ def create_custom_model(input_dim, output_dim, nodes, n=2, name='model'):
 
 
 fileloca_train = Path(__file__).parent / "data_sets/samleDataRefriRoom_transpose_new.csv"
-fileloca_test = Path(__file__).parent / "data_sets/test_empty.csv"
+fileloca_test = Path(__file__).parent / "data_sets/test_transpose.csv"
 dataset_train = pd.read_csv(fileloca_train)
 dataset_test = pd.read_csv(fileloca_test)
 
@@ -119,6 +56,16 @@ encoder_test.fit(y_test)
 
 encoded_Y = encoder.transform(y)
 encoded_Y_test = encoder_test.transform(y_test)
+
+######correlations
+
+corr_data = dataset_train
+corr_data['Measure'] = encoded_Y
+corr = corr_data.corr()
+heatmap = sns.heatmap(corr, xticklabels=list(dataset_train.columns[:]), yticklabels=list(dataset_train.columns[:]))
+plt.show()
+
+
 # One hot encoding
 enc = OneHotEncoder()
 enc_test = OneHotEncoder()
@@ -139,7 +86,7 @@ n_classes = Y.shape[1]
 
 
 models = [create_custom_model(n_features, n_classes, 10, n=i, name='model_{}'.format(i))
-          for i in range(1, 2)]
+          for i in range(1, 3)]
 
 for create_model in models:
     create_model().summary()
@@ -176,6 +123,21 @@ for create_model in models:
 
 #history_dict[model.name] = [history_callback, model]
 
+###### Save Keras Model
+
+model.save('cold_system_model.h5')
+print('model saved')
+
+
+
+#confusion matrix
+import seaborn as sns
+
+corr_data = dataset_train
+corr_data['Measure'] = encoded_Y
+corr = corr_data.corr()
+heatmap = sns.heatmap(corr, xticklabels=list(dataset_train.columns[:]), yticklabels=list(dataset_train.columns[:]))
+plt.show()
 
 
 
@@ -200,37 +162,4 @@ scaled_train_samples = scaler.fit_transform(test_samples)
 predictions = model.predict(x=test_samples, batch_size=1)
 
 print(predictions)
-
-#mehr als zwei Maßnahmen als Lösung
-#
-
-models = [create_custom_model(n_features, n_classes, 20, i, 'model_{}'.format(i))
-          for i in range(1, 4)]
-
-for create_model in models:
-    create_model().summary()
-
-history_dict = {}
-
-# TensorBoard Callback
-cb = TensorBoard()
-
-for create_model in models:
-    model = create_model()
-    print('Model name:', model.name)
-    history_callback = model.fit(X_train, Y_train,
-                                 batch_size=1,
-                                 epochs=50,
-                                 verbose=0,
-                                 validation_data=(X_test, Y_test),
-                                 callbacks=[cb])
-    score = model.evaluate(X_test, Y_test, verbose=0)
-    print('Test loss:', score[0])
-    print('Test accuracy:', score[1])
-
-    history_dict[model.name] = [history_callback, model]
-
-
-
-
 '''
