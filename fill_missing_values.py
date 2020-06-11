@@ -42,9 +42,15 @@ stringold = ''
 for t in range(0, len(predictions)):
     stringold = 'Test Nr. ' + str(t)
     for n in range(0, len(predictions)):
-        stringold = stringold + ' ' + names[n] + ' ' + str(round(predictions[t, n], 2))
+        stringold = stringold + ' ' + names[n] + ' ' + '(' '%s%%' % str(round(predictions[t, n]*100, 0)) + ')'
     print(stringold)
 rounded_predictions = np.argmax(predictions, axis=-1)
+
+
+
+
+'''
 print('highest rated measures for test scenarios are:')
 for i in rounded_predictions:
     print(names[i])
+'''
