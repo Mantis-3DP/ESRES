@@ -20,10 +20,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="981000d0-c266-4433-b118-b8f5f4de467b" name="Default Changelist" comment="verwechselte Daten korrigiert">
-      <change afterPath="$PROJECT_DIR$/jupytertest.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_sets/.~lock.validate_transpose.csv#" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/keras_tut.py" beforeDir="false" afterPath="$PROJECT_DIR$/create_model.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fill_missing_values.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ML_wpython.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/create_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/create_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jupytertest.ipynb" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,7 +64,7 @@
       <recent name="$PROJECT_DIR$/data_sets" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.create_model">
+  <component name="RunManager" selected="Python.fill_missing_values">
     <configuration name="ML_wpython" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ESRES" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -128,6 +128,25 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="fill_missing_values" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ESRES" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/fill_missing_values.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="movierec" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="ESRES" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -174,6 +193,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.fill_missing_values" />
         <item itemvalue="Python.create_model" />
         <item itemvalue="Python.ML_wpython" />
         <item itemvalue="Python.test" />
@@ -201,6 +221,7 @@
       <workItem from="1591705558149" duration="13479000" />
       <workItem from="1591879336856" duration="6548000" />
       <workItem from="1591886368846" duration="3951000" />
+      <workItem from="1591909916277" duration="364000" />
     </task>
     <task id="LOCAL-00001" summary="verwechselte Daten korrigiert">
       <created>1591886009034</created>
