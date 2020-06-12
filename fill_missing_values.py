@@ -32,6 +32,9 @@ def measure_names():
 
 
 
+
+
+
 X_scaled_test, Y_test = preprocess_cold_data()
 
 model = keras.models.load_model(Path(__file__).parent / 'models/cold_system_model.h5')
@@ -45,6 +48,13 @@ for t in range(0, len(predictions)):
         stringold = stringold + ' ' + names[n] + ' ' + '(' '%s%%' % str(round(predictions[t, n]*100, 0)) + ')'
     print(stringold)
 rounded_predictions = np.argmax(predictions, axis=-1)
+
+
+
+
+
+
+
 
 
 
