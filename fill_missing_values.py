@@ -20,19 +20,13 @@ def preprocess_cold_data():
     X_scaled_test = scaler.fit_transform(X_test)
     return X_scaled_test, Y_test
 
+
 def measure_names():
     fileloca_train = Path(__file__).parent / "data_sets/samleDataRefriRoom_transpose_new.csv"
     last_col = len(pd.read_csv(fileloca_train, nrows=1).columns)
-    dataset_train = pd.read_csv(fileloca_train, usecols=[last_col-1]).values
+    dataset_train = pd.read_csv(fileloca_train, usecols=[last_col - 1]).values
     names = pd.Categorical(np.hstack(dataset_train)).categories
     return names
-
-
-
-
-
-
-
 
 
 X_scaled_test, _ = preprocess_cold_data()
@@ -46,21 +40,11 @@ stringold = ''
 for t in range(0, len(predictions)):
     stringold = 'Test Nr. ' + str(t)
     for n in range(0, len(predictions)):
-        stringold = stringold + ' ' + names[n] + ' ' + '(' '%s%%' % str(round(predictions[t, n]*100, 0)) + ')'
+        stringold = stringold + ' ' + names[n] + ' ' + '(' '%s%%' % str(round(predictions[t, n] * 100, 0)) + ')'
     print(stringold)
 rounded_predictions = np.argmax(predictions, axis=-1)
 
-
-
-
-
-
-
-
-
-
 '''
-
 print('highest rated measures for test scenarios are:')
 for i in rounded_predictions:
     print(names[i])
