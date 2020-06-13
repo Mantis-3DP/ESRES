@@ -21,6 +21,9 @@
   <component name="ChangeListManager">
     <list default="true" id="981000d0-c266-4433-b118-b8f5f4de467b" name="Default Changelist" comment="added hieartn">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_sets/.~lock.samleDataRefriRoom_transpose_new.xlsx#" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_sets/samleDataRefriRoom_transpose_new.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/data_sets/samleDataRefriRoom_transpose_new.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -222,7 +225,7 @@
       <workItem from="1591879336856" duration="6548000" />
       <workItem from="1591886368846" duration="3951000" />
       <workItem from="1591909916277" duration="1072000" />
-      <workItem from="1591946664321" duration="6882000" />
+      <workItem from="1591946664321" duration="8039000" />
     </task>
     <task id="LOCAL-00001" summary="verwechselte Daten korrigiert">
       <created>1591886009034</created>
