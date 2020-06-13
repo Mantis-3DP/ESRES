@@ -35,12 +35,13 @@ def measure_names():
 
 
 
-X_scaled_test, Y_test = preprocess_cold_data()
+X_scaled_test, _ = preprocess_cold_data()
 
 model = keras.models.load_model(Path(__file__).parent / 'models/cold_system_model.h5')
 
 predictions = model.predict(x=X_scaled_test, batch_size=1, verbose=0)
 names = measure_names()
+
 stringold = ''
 for t in range(0, len(predictions)):
     stringold = 'Test Nr. ' + str(t)
@@ -58,8 +59,8 @@ rounded_predictions = np.argmax(predictions, axis=-1)
 
 
 
-
 '''
+
 print('highest rated measures for test scenarios are:')
 for i in rounded_predictions:
     print(names[i])
