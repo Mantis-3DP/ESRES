@@ -13,7 +13,6 @@ def preprocess_cold_data():
     y_test = dataset_test_values[:, -1]
     encoder_test = LabelEncoder()
     encoder_test.fit(y_test)
-    encoded_Y_test = encoder_test.transform(y_test)
     enc_test = OneHotEncoder()
     Y_test = enc_test.fit_transform(y_test[:, np.newaxis]).toarray()
     scaler = MinMaxScaler(feature_range=(0, 1))
