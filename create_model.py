@@ -7,12 +7,11 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder, MinMaxScaler
 from pathlib import Path
 from sklearn.utils import shuffle
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Activation, Dense
+from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 from sklearn.model_selection import train_test_split
 from keras.callbacks import TensorBoard
 import seaborn as sns
-
 
 
 def create_custom_model(input_dim, output_dim, nodes, n=2, name='model'):
@@ -27,11 +26,12 @@ def create_custom_model(input_dim, output_dim, nodes, n=2, name='model'):
         model.compile(Adam(lr=0.001), loss='categorical_crossentropy',
                       metrics=['accuracy'])
         return model
+
     return create_model
 
 
-if __name__=="__main__":
-    #change to import from .json
+if __name__ == "__main__":
+    # change to import from .json
     fileloca_train = Path(__file__).parent / "data_sets/samleDataRefriRoom_transpose_new.csv"
     fileloca_test = Path(__file__).parent / "data_sets/test_transpose.csv"
     dataset_train = pd.read_csv(fileloca_train)
@@ -57,14 +57,13 @@ if __name__=="__main__":
     encoded_Y = encoder.transform(y)
     encoded_Y_test = encoder_test.transform(y_test)
 
-    ######correlations
+    # correlations
 
     corr_data = dataset_train
     corr_data['Measure'] = encoded_Y
     corr = corr_data.corr()
-    heatmap = sns.heatmap(corr, xticklabels=list(dataset_train.columns[:]), yticklabels=list(dataset_train.columns[:]))
+    heatmap_variables = sns.heatmap(corr, xticklabels=list(dataset_train.columns[:]), yticklabels=list(dataset_train.columns[:]))
     plt.show()
-
 
     # One hot encoding
     enc = OneHotEncoder()
@@ -75,7 +74,7 @@ if __name__=="__main__":
     train_samples, train_labels = shuffle(X, Y)
     scaler = MinMaxScaler(feature_range=(0, 1))
 
-    X_scaled= scaler.fit_transform(train_samples)
+    X_scaled = scaler.fit_transform(train_samples)
     X_scaled_test = scaler.fit_transform(X_test)
 
     X_train, X_val, Y_train, Y_val = train_test_split(
@@ -83,7 +82,6 @@ if __name__=="__main__":
 
     n_features = X.shape[1]
     n_classes = Y.shape[1]
-
 
     models = [create_custom_model(n_features, n_classes, 10, n=i, name='model_{}'.format(i))
               for i in range(2, 3)]
@@ -99,12 +97,12 @@ if __name__=="__main__":
     for create_model in models:
         model = create_model()
         print('Model name:', model.name)
-        #history_callback =\
+        # history_callback =\
         model.fit(X_train, Y_train,
-                                     batch_size=1,
-                                     epochs=100,
-                                     #verbose=0,
-                                     validation_data=(X_val, Y_val)
+                  batch_size=1,
+                  epochs=100,
+                  # verbose=0,
+                  validation_data=(X_val, Y_val)
                   )
         '''
         score = model.evaluate(
@@ -122,26 +120,20 @@ if __name__=="__main__":
             print(names[i])
         '''
 
+    # history_dict[model.name] = [history_callback, model]
 
-    #history_dict[model.name] = [history_callback, model]
-
-    ###### Save Keras Model
+    # Save Keras Model
 
     model.save(Path(__file__).parent / 'models/cold_system_model.h5')
     print('model saved')
 
-
-
-    #confusion matrix
-
+    # confusion matrix
 
     corr_data = dataset_train
     corr_data['Measure'] = encoded_Y
     corr = corr_data.corr()
-    heatmap = sns.heatmap(corr, xticklabels=list(dataset_train.columns[:]), yticklabels=list(dataset_train.columns[:]))
+    heatmap_variables = sns.heatmap(corr, xticklabels=list(dataset_train.columns[:]), yticklabels=list(dataset_train.columns[:]))
     plt.show()
-
-
 
 '''
 model = Sequential()
