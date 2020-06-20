@@ -13,11 +13,15 @@ def calcuate_load_light(load_electrical, t_light):
     # load_electrical = Anschlussleistung [W]
     # t_light = Zeit in welcher Belechtung genutzt wird [h/day] --> kann von t_person abweichen! 
     load_light = 1 * 1 * load_electrical * t_light
+    # print("load light")
+    # print(load_electrical)
+    # print(t_light)
+    # print(load_light)
     return load_light
 
 def calcuate_load_transmission(u_value, cr_lenght, cr_width, cr_height, temp_outside, temp_inside): 
     area = 2*cr_lenght*cr_width + 2*cr_height*cr_lenght + 2*cr_height*cr_width
-    print(area)
+    # print(area)
     load_transmission = u_value * area * (temp_outside-temp_inside)
     return load_transmission
 
@@ -26,6 +30,11 @@ def calcuate_load_machine(load_electrical, efficiency, t_machine):
     # efficiency = Wirkungsgrad
     # t_machine = Nutzungszeit [h/day]
     load_machine = load_electrical / efficiency * 1 * 0.8 * t_machine
+    # print(load_electrical)
+    # print(efficiency)
+    # print(t_machine)
+    # print(load_machine)
+    
     return load_machine
 
     
@@ -57,7 +66,7 @@ def generateData_default(amount):
         # Anschlussleistung Lüfter mit Verhältnis zum Standard Danfoss raum ermitteln 
         # Deswegen später kein Wirkungsgrad mehr!!
         load_fan_electrical = 210 / 108 * cr_volume
-        t_fan = 24
+        t_fan = random.randint(16*10,18*10)/10
 
         #Calculate Values   
         load_people = calcuate_load_people(q_person,n_person,t_person)/24000
@@ -65,10 +74,10 @@ def generateData_default(amount):
         load_transmission = calcuate_load_transmission(u_value,cr_lenght, cr_width, cr_height, temp_outside, temp_inside)*24/24000
         load_fan = calcuate_load_machine(load_fan_electrical, 1, t_fan)/24000
         load_total = (load_transmission + load_people + load_light + load_fan) * 1.45 #Faktor für die fehlenden Lasten
-        print("volume: ")
-        print(cr_volume)
-        print("total load: ")
-        print(load_total)
+        # print("volume: ")
+        # print(cr_volume)
+        # print("total load: ")
+        # print(load_total)
         load_installed = load_total + 0.150 #Puffer für installierte Leistung (Defaultbedingungen)
 
         
@@ -80,7 +89,8 @@ def generateData_default(amount):
     return df
 
 
+
 print("jetzt gehts los")
 
 print("GENERATING DATA")
-print(generateData_default(1))
+print(generateData_default(1000))
