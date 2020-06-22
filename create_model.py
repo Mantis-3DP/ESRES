@@ -1,18 +1,10 @@
-import pandas as pd
-import numpy as np
 from pathlib import Path
-import matplotlib.pyplot as plt
 from keras.models import Sequential
 from keras.layers import Dense
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder, MinMaxScaler, MultiLabelBinarizer
-
-from sklearn.utils import shuffle
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
-from sklearn.model_selection import train_test_split
-from keras.callbacks import TensorBoard
-import seaborn as sns
+
 
 '''
 
@@ -46,54 +38,6 @@ def create_custom_model(input_dim, output_dim, nodes, n=2, name='model'):
         return model
 
     return create_model
-
-
-
-
-def datapreprocess(fileloca_train, num_measures):
-    dataset_train = pd.read_csv(fileloca_train)
-    dataset_train_values = dataset_train.values
-    feature_names = list(dataset_train.columns[:-1])
-    measure_names = list(dataset_train.columns[-num_measures:])
-    X = dataset_train_values[:, :-num_measures]
-    y_values = dataset_train_values[:, -num_measures:]
-    #    X, y_values = shuffle(X, y_values)
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    X_scaled = scaler.fit_transform(X)
-    X_train, X_val, y_train_split, y_val_split = train_test_split(X_scaled, y_values, test_size=0.1, random_state=2)
-
-    # looks redundant, is there a simpler way?
-    y_train: dict = dict()
-    Y_train: dict = dict()
-    y_val: dict = dict()
-    Y_val: dict = dict()
-    n_classes: dict = dict()
-    for measure in measure_names:
-        y_train[measure] = []
-        Y_train[measure] = []
-        y_val[measure] = []
-        Y_val[measure] = []
-        n_classes[measure] = 0
-
-    for t in range(0, num_measures):
-        y_train[measure_names[t]] = np.array(y_train_split[:, t])
-        y_val[measure_names[t]] = np.array(y_val_split[:, t])
-
-        # names = pd.Categorical(y[v]).categories
-        # encoder = LabelEncoder()
-        # encoder.fit(y[v])
-        # encoded_Y[v] = encoder.transform(y[v])
-        # One hot encoding
-        enc = OneHotEncoder()
-        Y_train[measure_names[t]] = enc.fit_transform(y_train[measure_names[t]][:, np.newaxis]).toarray()
-        Y_val[measure_names[t]] = enc.fit_transform(y_val[measure_names[t]][:, np.newaxis]).toarray()
-        n_classes[measure_names[t]] = len(Y_train[measure_names[0]][0])
-
-    n_features = X.shape[1]
-
-    return feature_names, measure_names, X_train, X_val, Y_train, Y_val, n_features, n_classes
-
-
 
 def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, model_number):
     models = [create_custom_model(n_features, n_classes, 10, n=i, name='model_{}'.format(model_number))
