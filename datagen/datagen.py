@@ -366,14 +366,61 @@ print("------------------ TEST GENERATE MIXED TEST DATA ----------------------")
 print(generateTestData_mixed_sp(10))
         
 
+################## Generate Multiproblem Datasets #############
 
+def generateData_mixed_mp(amount, addDefaultData):
+    df_Data_mixed_mp = pd.DataFrame()
 
-fakeOptionsTest = { "transmission_fake" : True, 
+    for i in range(amount):
+        fakeOptions = { "transmission_fake" : False, 
                 "people_fake_1": False, 
                 "people_fake_2": False, 
-                "light_fake_1": True, 
+                "light_fake_1": False, 
                 "light_fake_2": False, 
-                "fan_fake": True, 
+                "fan_fake": False, 
                 "load_installed_fake": False}
+        if addDefaultData: 
+            x = random.randint(0,1) # ANTEIL DER MIT FEHLER GENERIERTEN DATEN LÄSST SICH ÜBER ZWEITE ZAHL STEUERN 
+            if x == 0: 
+                df_Data_mixed_mp = df_Data_mixed_mp.append(generateTrainingData_default(1), ignore_index = True)
+            else:
+                amount_problems = random.randint(0, len(fakeOptions)) #Hiermit kann man beeinflussen wie viele Fehler maximal gemacht werden können 
+                for p in range(amount_problems):                      #Mindestanzahl ist nicht direkt möglich in der Form, da nicht gecheckt wird ob Probleme "doppelt auf True" gesetzt werden 
+                    fakeOptions[random.choice(list(fakeOptions.keys()))] = True
+                df_Data_mixed_mp = df_Data_mixed_mp.append(generateData_fake(1, True, fakeOptions), ignore_index = True)
+        else:
+            amount_problems = random.randint(0, len(fakeOptions)) 
+            for p in range(amount_problems): 
+                fakeOptions[random.choice(list(fakeOptions.keys()))] = True
+            df_Data_mixed_mp = df_Data_mixed_mp.append(generateData_fake(1, True, fakeOptions), ignore_index = True)
+    return df_Data_mixed_mp
 
-print(generateData_fake(10, True, fakeOptionsTest))
+
+
+print("new test")
+print(generateData_mixed_mp(10, False))
+
+
+print("processing")
+from sklearn.preprocessing import MultiLabelBinarizer
+
+mlb = MultiLabelBinarizer()
+df_TEMP = generateData_mixed_mp(5, True)
+print(df_TEMP)
+
+df_ENC = df_TEMP.join(pd.DataFrame(mlb.fit_transform(df_TEMP.pop("problem")), columns = mlb.classes_, index=df_TEMP.index))
+
+print(df_ENC)
+ 
+
+
+
+# fakeOptionsTest = { "transmission_fake" : True, 
+#                 "people_fake_1": False, 
+#                 "people_fake_2": False, 
+#                 "light_fake_1": True, 
+#                 "light_fake_2": False, 
+#                 "fan_fake": True, 
+#                 "load_installed_fake": False}
+
+# print(generateData_fake(10, True, fakeOptionsTest))
