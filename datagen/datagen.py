@@ -1,6 +1,6 @@
 import random
 import pandas as pd
-
+from pathlib import Path
 
 def calcuate_load_people(q_person, n_person, t_person): 
     # q_person = Wärmeabgabe pro Person (Standard = 240) [W]
@@ -405,13 +405,18 @@ print("processing")
 from sklearn.preprocessing import MultiLabelBinarizer
 
 mlb = MultiLabelBinarizer()
-df_TEMP = generateData_mixed_mp(5, True)
+df_TEMP = generateData_mixed_mp(10000, True)
 print(df_TEMP)
 
 df_ENC = df_TEMP.join(pd.DataFrame(mlb.fit_transform(df_TEMP.pop("problem")), columns = mlb.classes_, index=df_TEMP.index))
 
 print(df_ENC)
  
+
+exportPath = Path(__file__).parent / "samleData_vectoroutput.csv"
+
+df_ENC.to_csv(exportPath, index=False)
+
 
 
 
