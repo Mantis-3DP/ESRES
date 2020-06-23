@@ -13,7 +13,7 @@ def datapreprocess_train(fileloca_train, num_measures):
     X = dataset_train_values[:, :-num_measures]
     y_values = dataset_train_values[:, -num_measures:]
 
-    # X, y_values = shuffle(X, y_values)
+    X, y_values = shuffle(X, y_values)
 
     scaler = MinMaxScaler(feature_range=(0, 1))
     X_scaled = scaler.fit_transform(X)

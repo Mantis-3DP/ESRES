@@ -1,5 +1,6 @@
 from create_model import create_all_models
 from data_processing import datapreprocess_train, datapreprocess_test
+from format_strings import show_predictions
 from predict_measures import predict_measure
 from pathlib import Path
 import sys
@@ -9,9 +10,9 @@ create_models: int = sys.argv[1]
 if create_models == 'create_models':
     #create models
     #link to data
-    fileloca_train = Path(__file__).parent / "data_sets/samleData_vectoroutput.csv"
+    fileloca_train = Path(__file__).parent / "datagen/samleData_vectoroutput.csv"
 
-    num_measures = 5
+    num_measures = 8
 
     #create_model.py needs a class with an __init__ instead of following
 
@@ -27,9 +28,9 @@ if create_models == 'create_models':
 
 elif create_models == 'test':
     print("use models")
-    fileloca_test = Path(__file__).parent / "data_sets/samleData_vectoroutput.csv"
+    fileloca_test = Path(__file__).parent / "datagen/samleData_vectoroutput.csv"
 
-    num_measures = 5
+    num_measures = 8
     feature_names, measure_names, X_test, Y_test, n_features, n_classes = datapreprocess_test(fileloca_test,
                                                                                             num_measures)
 
@@ -43,3 +44,4 @@ elif create_models == 'test':
         modelloca = Path(__file__).parent / "models/cold_system_model_{}.h5".format(i)
         predictions[measure_names[i]] = predict_measure(modelloca, X_test)
 
+    show_predictions(predictions, measure_names, len(X_test))
