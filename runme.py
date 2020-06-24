@@ -5,16 +5,17 @@ from predict_measures import predict_measure
 from pathlib import Path
 import sys
 
-create_models = []
-create_models.append(sys.argv[1])
-create_models.append(sys.argv[2])
+run_arg = []
+run_arg.append(sys.argv[1])
+run_arg.append(sys.argv[2])
 
-if create_models[0] == 'create_models':
+if run_arg[0] == 'create_models':
     # create models
     # link to data
-    fileloca_train = Path(__file__).parent / "datagen/samleData_vectoroutput.csv"
+    fileloca_train = Path(__file__).parent / "data/newData_vectoroutput.csv"
 
-    num_measures = 8
+    #das muss auch anders gelöst werden unten ist nochmal der gleiche Parameter
+    num_measures = 7
 
     # create_model.py needs a class with an __init__ instead of following
 
@@ -22,24 +23,23 @@ if create_models[0] == 'create_models':
         fileloca_train,
         num_measures)
 
-    if create_models[1] == -1:
-        model_number = 0
-        for measure in measure_names:
+    if run_arg[1] == 'all_models':
+        for model_num, measure in enumerate(measure_names):
             create_all_models(X_train, X_val, Y_train[measure], Y_val[measure], n_features, n_classes[measure],
-                              model_number)
-            model_number += 1
+                              model_num)
+
     else:
-        measure = measure_names[int(create_models[1])]
-        model_number = int(create_models[1])
+        measure = measure_names[int(run_arg[1])]
+        model_num = int(run_arg[1])
         create_all_models(X_train, X_val, Y_train[measure], Y_val[measure], n_features, n_classes[measure],
-                          model_number)
+                          model_num)
 
 
-elif create_models[0] == 'test':
-    print("use models")
-    fileloca_test = Path(__file__).parent / "datagen/samleData_vectoroutput.csv"
+elif run_arg[0] == 'test':
+    fileloca_test = Path(__file__).parent / "data/newData_vectoroutput.csv"
 
-    num_measures = 8
+    # das muss auch anders gelöst werden unten ist nochmal der gleiche Parameter
+    num_measures = 7
     feature_names, measure_names, X_test, Y_test, n_features, n_classes = datapreprocess_test(fileloca_test,
                                                                                               num_measures)
 
