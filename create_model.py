@@ -40,7 +40,7 @@ def create_custom_model(input_dim, output_dim, nodes, n=2, name='model'):
     return create_model
 
 def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, model_number):
-    models = [create_custom_model(n_features, n_classes, 6, n=i, name='model_{}'.format(model_number))
+    models = [create_custom_model(n_features, n_classes, 30, n=i, name='model_{}'.format(model_number))
               for i in range(5, 6)]
 
     for create_model in models:

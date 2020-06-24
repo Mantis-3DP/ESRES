@@ -7,7 +7,8 @@ import sys
 
 create_models = []
 create_models.append(sys.argv[1])
-create_models.append(sys.argv[2])
+if sys.argv[2]:
+    create_models.append(sys.argv[2])
 
 if create_models[0] == 'create_models':
     # create models
