@@ -33,7 +33,7 @@ def create_custom_model(input_dim, output_dim, nodes, n=2, name='model'):
         model.add(Dense(output_dim, activation='softmax'))
 
         # Compile model
-        model.compile(Adam(lr=0.01), loss='categorical_crossentropy',
+        model.compile(Adam(lr=0.001), loss='categorical_crossentropy',
                       metrics=['accuracy'])
         return model
 
@@ -41,7 +41,7 @@ def create_custom_model(input_dim, output_dim, nodes, n=2, name='model'):
 
 def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, model_number):
     models = [create_custom_model(n_features, n_classes, 6, n=i, name='model_{}'.format(model_number))
-              for i in range(2, 3)]
+              for i in range(5, 6)]
 
     for create_model in models:
         create_model().summary()
@@ -51,8 +51,8 @@ def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, mod
         print('Model name:', model.name)
         # history_callback =\
         model.fit(X_train, Y_train,
-                  batch_size=1,
-                  epochs=5,
+                  batch_size=10,
+                  epochs=50,
                   # verbose=0,
                   validation_data=(X_val, Y_val)
                   )

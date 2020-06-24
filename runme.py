@@ -5,8 +5,11 @@ from predict_measures import predict_measure
 from pathlib import Path
 import sys
 
-create_models: int = sys.argv[1]
-if create_models == 'create_models':
+create_models = []
+create_models.append(sys.argv[1])
+create_models.append(sys.argv[2])
+
+if create_models[0] == 'create_models':
     # create models
     # link to data
     fileloca_train = Path(__file__).parent / "datagen/samleData_vectoroutput.csv"
@@ -19,15 +22,20 @@ if create_models == 'create_models':
         fileloca_train,
         num_measures)
 
-    model_number = 0
-    for measure in measure_names:
+    if create_models[1] == -1:
+        model_number = 0
+        for measure in measure_names:
+            create_all_models(X_train, X_val, Y_train[measure], Y_val[measure], n_features, n_classes[measure],
+                              model_number)
+            model_number += 1
+    else:
+        measure = measure_names[int(create_models[1])]
+        model_number = int(create_models[1])
         create_all_models(X_train, X_val, Y_train[measure], Y_val[measure], n_features, n_classes[measure],
                           model_number)
-        model_number += 1
 
 
-
-elif create_models == 'test':
+elif create_models[0] == 'test':
     print("use models")
     fileloca_test = Path(__file__).parent / "datagen/samleData_vectoroutput.csv"
 
