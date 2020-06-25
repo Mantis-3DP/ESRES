@@ -12,10 +12,12 @@ run_arg.append(sys.argv[2])
 if run_arg[0] == 'create_models':
     # create models
     # link to data
-    fileloca_train = Path(__file__).parent / "data/newData_vectoroutput.csv"
+    fileloca_train = Path(__file__).parent / "data/TrainData.csv"
 
     #das muss auch anders gelöst werden unten ist nochmal der gleiche Parameter
     num_measures = 7
+
+
 
     # create_model.py needs a class with an __init__ instead of following
 
@@ -36,7 +38,7 @@ if run_arg[0] == 'create_models':
 
 
 elif run_arg[0] == 'test':
-    fileloca_test = Path(__file__).parent / "data/newData_vectoroutput.csv"
+    fileloca_test = Path(__file__).parent / "data/TestData2.csv"
 
     # das muss auch anders gelöst werden unten ist nochmal der gleiche Parameter
     num_measures = 7
