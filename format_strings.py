@@ -3,8 +3,7 @@ import numpy as np
 
 def show_predictions(predictions, measure_names, Y_test, test_count):
     counter = 0
-    test_count = 10  # remove later
-    num_top_values = 3
+    num_top_values = 7
     for i in range(0, test_count):
         measure_values = []
         for measure in measure_names:
