@@ -2,6 +2,9 @@ import numpy as np
 
 
 def show_predictions(predictions, measure_names, Y_test, test_count):
+
+    # counter und i das gleiche?
+
     counter = 0
     num_top_values = 7
     for i in range(0, test_count):
@@ -19,9 +22,9 @@ def show_predictions(predictions, measure_names, Y_test, test_count):
             if np.round(measure_values[top_value_positions[m]], 0) == Y_test[measure_names[top_value_positions[m]]][
                 i, 1]:
                 counter += 1
-            print('--- {} --- has probability of {}% --- true value is {}'.format(
-                measure_name_at_m,
+            print('--- {}% --- for {} --- true: {}'.format(
                 value_at_m,
+                measure_name_at_m,
                 Y_value_at_m
             ))
         print(' ')

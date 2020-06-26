@@ -32,19 +32,21 @@ def create_custom_model(input_dim, output_dim, nodes, n=2, name='model'):
         model = Sequential(name=name)
 
         for i in range(n):
-            model.add(Dense(nodes, input_dim=input_dim, activation='relu' ))
-            model.add(Dense(nodes/2, activation='relu'))
+            model.add(Dense(nodes, input_dim=input_dim, activation='relu'))
+            model.add(Dense(nodes / 1, activation='relu'))
+            model.add(Dense(nodes / 2, activation='relu'))
+            model.add(Dense(nodes / 4, activation='relu'))
         model.add(Dense(output_dim, activation='softmax'))
 
         # Compile model
-        model.compile(Adam(lr=0.01), loss='categorical_crossentropy',
+        model.compile(Adam(lr=0.0001), loss='categorical_crossentropy',
                       metrics=['accuracy'])
         return model
 
     return create_model
 
 def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, model_number):
-    models = [create_custom_model(n_features, n_classes, 20, n=i, name='model_{}'.format(model_number)) for i in range(1, 2)]
+    models = [create_custom_model(n_features, n_classes, 50, n=i, name='model_{}'.format(model_number)) for i in range(1, 2)]
 
     for create_model in models:
         create_model().summary()
@@ -54,8 +56,8 @@ def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, mod
         print('Model name:', model.name)
         # history_callback =\
         model.fit(X_train, Y_train,
-                  batch_size=10,
-                  epochs=15,
+                  batch_size=50,
+                  epochs=12,
                   # verbose=0,
                   validation_data=(X_val, Y_val)
                   )

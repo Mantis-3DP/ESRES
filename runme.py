@@ -4,6 +4,10 @@ from format_strings import show_predictions
 from predict_measures import predict_measure
 from pathlib import Path
 import sys
+# import seaborn as sb
+# import matplotlib.pyplot as plt
+# import numpy as np
+# from ColdRoom import ColdRoom
 
 run_arg = []
 run_arg.append(sys.argv[1])
@@ -15,7 +19,7 @@ if run_arg[0] == 'create_models':
     fileloca_train = Path(__file__).parent / "data/TrainData.csv"
 
     #das muss auch anders gelöst werden unten ist nochmal der gleiche Parameter
-    num_measures = 7
+    num_measures = 8
 
 
 
@@ -38,10 +42,10 @@ if run_arg[0] == 'create_models':
 
 
 elif run_arg[0] == 'test':
-    fileloca_test = Path(__file__).parent / "data/TestData2.csv"
+    fileloca_test = Path(__file__).parent / "data/TestData.csv"
 
     # das muss auch anders gelöst werden unten ist nochmal der gleiche Parameter
-    num_measures = 7
+    num_measures = 8
     feature_names, measure_names, X_test, Y_test, n_features, n_classes = datapreprocess_test(fileloca_test,
                                                                                               num_measures)
 
@@ -55,3 +59,11 @@ elif run_arg[0] == 'test':
         predictions[measure_names[i]] = predict_measure(modelloca, X_test)
 
     show_predictions(predictions, measure_names, Y_test, len(X_test))
+
+elif run_arg[0] == 'corr':
+    fileloca_test = Path(__file__).parent / "data/TestData.csv"
+
+    # das muss auch anders gelöst werden unten ist nochmal der gleiche Parameter
+    num_measures = 7
+    feature_names, measure_names, X_test, Y_test, n_features, n_classes = datapreprocess_test(fileloca_test,
+                                                                                              num_measures)
