@@ -7,35 +7,75 @@ from sklearn.preprocessing import MultiLabelBinarizer
 mlb = MultiLabelBinarizer()
 
 class ColdRoom:
+    # Modes: problem, default, user
+
     ######## Constructor ########
 
     def __init__(self, *args, **kwargs):
-        # if kwargs["length"] == None: TODO kann man so besser auf user eingaben abstimmen
-        self.length = random.randint(3*100, 6*100)/100
-        self.width = random.randint(3*100, 6*100)/100
-        self.height = random.randint(2.5*100, 3.6*100)/100
+        if "length" not in kwargs: #TODO kann man so besser auf user eingaben abstimmen
+            self.length = random.randint(3*100, 6*100)/100
+        else: 
+            self.length = kwargs["length"]
+        if "width" not in kwargs:
+            self.width = random.randint(3*100, 6*100)/100
+        else:
+            self.width = kwargs["width"]
+        if "height" not in kwargs:
+            self.height = random.randint(2.5*100, 3.6*100)/100
+        else:
+            self.height = kwargs["height"]
+
         self.volume = self.length * self.width * self.height
+        
+        # Konstanten für diesen Proof of Concept
         self.temp_outside = 24.0
         self.temp_inside = 5.0 
         self.q_person = 240
 
         ### Random Default Values ###
-        self.n_person = random.randint(1,3) 
-        self.t_person = random.randint(3*10, 5*10)/10
-        self.load_light_electrical = 240 / 108 * self.volume
-        self.t_light = self.t_person
-        self.u_value = 0.242
-        self.load_fan_electrical = 210 / 108 * self.volume
+        if "n_person"not in kwargs:
+            self.n_person = random.randint(1,3) 
+        else: 
+            self.n_person = kwargs["n_person"]
+        if "t_person"not in kwargs: 
+            self.t_person = random.randint(3*10, 5*10)/10
+        else: 
+            self.t_person = kwargs["t_person"]
+        if "load_light_electrical"not in kwargs:
+            self.load_light_electrical = 240 / 108 * self.volume
+        else: 
+            self.load_light_electrical = kwargs["load_light_electrical"]
+        if "t_light"not in kwargs:
+            self.t_light = self.t_person
+        else: 
+            self.t_light = kwargs["t_person"]
+        if "u_value"not in kwargs: 
+            self.u_value = 0.242
+        else:
+            self.u_value = kwargs["u_value"]
+        if "load_fan_electrical" not in kwargs:
+            self.load_fan_electrical = 210 / 108 * self.volume
+        else: 
+            self.load_fan_electrical = kwargs["load_fan_electrical"]
         self.t_fan = random.randint(16*10,18*10)/10
 
-        # No Problems 
-        self.problems = ["none"]
-        self.defaultRoom = True
+        self.load_installed = 0.0
+
+        if "load_installed" in kwargs:
+            self.load_installed = kwargs["load_installed"]
+
         self.dataRow = [] #needed for later
-        
-        if kwargs["default"] == False:
+        self.mode = kwargs.get("mode")
+        self.problems = []
+
+
+        if self.mode == "default":
+            self.problems = ["none"]
+            self.defaultRoom = True
+        elif self.mode == "user":
+            self.defaultRoom = False
+        elif self.mode == "problem":
             problemOptions = kwargs.get("problemOptions")
-            self.problems.clear() # Removes "none" from problems
             self.defaultRoom = False #sets this Room as not default, kann später dazu genutzt werden um "geheilte Räume" wieder zum lerenne zu verwenden
             if problemOptions["transmission_problem"]:   
                 self.u_value = random.randint(3*100, 5*100)/1000
@@ -114,16 +154,25 @@ class ColdRoom:
         self.load_transmission = self.calculate_load_transmission() * 24 / 24000
         self.load_fan = self.calculate_load_machine(self.load_fan_electrical, 1, self.t_fan) / 24000
         self.load_total = (self.load_transmission + self.load_people + self.load_light + self.load_fan) * 1.45 #Faktor für die fehlenden Lasten
-        if self.defaultRoom: 
+        if self.mode == "default": 
             self.load_installed = self.load_total * 1.1
-        else: 
+        elif self.mode == "problem": 
             self.load_installed = self.load_total * random.randint(12,20)/10
+            self.problems.append("Installed Load too high")
 
 
     def createDataRow(self):
         self.calculateLoads()
-        self.dataRow = [self.load_transmission, self.load_people, self.load_light, self.load_fan, self.load_total, self.load_installed, self.problems]
+        self.dataRow = [self.load_transmission, self.load_people, self.n_person, self.load_light, self.load_fan, self.load_total, self.load_installed, self.problems]
         return self.dataRow # Theoretisch auch zugriff über Objektatrribut möglich
+
+
+    def createDataFrame(self):
+        dataRow = self.createDataRow()
+        df_temp = pd.DataFrame([dataRow], columns=["load_transmission", "load_people", "n_person", "load_light", "load_fan", "load_total", "load_installed", "problems"])
+        df_ENC = df_temp.join(pd.DataFrame(mlb.fit_transform(df_temp.pop("problems")), columns = mlb.classes_, index=df_temp.index))
+        return df_ENC
+
 
 
 ############## DATA GENERATION ##########
@@ -142,17 +191,17 @@ def generateRandomColdRooms(*args, **kwargs):
         x = random.randint(0,1) # ANTEIL DER MIT FEHLER GENERIERTEN DATEN LÄSST SICH ÜBER ZWEITE ZAHL STEUERN 
         if x == 0: 
             #generate Random DEFAULT ColdRoom
-            cr = ColdRoom(default=True)
+            cr = ColdRoom(mode="default")
             dataRows.append(cr.createDataRow())
         else:
             amount_problems = random.randint(1, len(problemOptions)) #Hiermit kann man beeinflussen wie viele Fehler maximal gemacht werden können 
             for p in range(amount_problems):                      #Mindestanzahl ist nicht direkt möglich in der Form, da nicht gecheckt wird ob Probleme "doppelt auf True" gesetzt werden 
                 problemOptions[random.choice(list(problemOptions.keys()))] = True
             # generate Random FAULTY ColdRoom
-            cr = ColdRoom(default=False, problemOptions=problemOptions)
+            cr = ColdRoom(mode="problem", problemOptions=problemOptions)
             dataRows.append(cr.createDataRow())
 
-    df_Data_mixed_mp = pd.DataFrame(dataRows, columns=["load_transmission", "load_people", "load_light", "load_fan", "load_total", "load_installed", "problems"]) # EIN S BEI PROBLEM MEHR!!
+    df_Data_mixed_mp = pd.DataFrame(dataRows, columns=["load_transmission", "load_people", "n_person", "load_light", "load_fan", "load_total", "load_installed", "problems"]) # EIN S BEI PROBLEM MEHR!!
     
     temp = df_Data_mixed_mp
     if kwargs["csv"] == True:   
@@ -177,4 +226,5 @@ def generateRandomColdRooms(*args, **kwargs):
 # csv = True/False sagt ob die Daten in einer csv Datei gespeichert werden sollen
 # filename = "" -> Dateiname
 
-print(generateRandomColdRooms(amount=10000, csv=True, filename="newData_vectoroutput"))
+# print(generateRandomColdRooms(amount=100, csv=True, filename="TestData"))
+
