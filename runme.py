@@ -16,7 +16,7 @@ run_arg.append(sys.argv[2])
 if run_arg[0] == 'create_models':
     # create models
     # link to data
-    fileloca_train = Path(__file__).parent / "data/TrainData.csv"
+    fileloca_train = Path(__file__).parent / "Data/TrainData.csv"
 
     #das muss auch anders gelöst werden unten ist nochmal der gleiche Parameter
     num_measures = 8
@@ -42,7 +42,7 @@ if run_arg[0] == 'create_models':
 
 
 elif run_arg[0] == 'test':
-    fileloca_test = Path(__file__).parent / "data/TestData.csv"
+    fileloca_test = Path(__file__).parent / "Data/TestData.csv"
 
     # das muss auch anders gelöst werden unten ist nochmal der gleiche Parameter
     num_measures = 8

@@ -13,7 +13,7 @@ def datapreprocess_train(fileloca_train, num_measures):
     X = dataset_train_values[:, :-num_measures]
     y_values = dataset_train_values[:, -num_measures:]
 
-    X, y_values = shuffle(X, y_values)
+    #X, y_values = shuffle(X, y_values)
 
     scaler = MinMaxScaler(feature_range=(0, 1))
     X_scaled = scaler.fit_transform(X)
@@ -50,7 +50,7 @@ def datapreprocess_train(fileloca_train, num_measures):
 def datapreprocess_test(fileloca_train, num_measures):
     dataset_train = pd.read_csv(fileloca_train)
     dataset_train_values = dataset_train.values
-    feature_names = list(dataset_train.columns[:-1])
+    feature_names = list(dataset_train.columns[:-num_measures])
     measure_names = list(dataset_train.columns[-num_measures:])
     X = dataset_train_values[:, :-num_measures]
     y_values = dataset_train_values[:, -num_measures:]

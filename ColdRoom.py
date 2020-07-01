@@ -188,7 +188,7 @@ def generateRandomColdRooms(*args, **kwargs):
                     "light_problem_2": False, 
                     "fan_problem": False, 
                     "load_installed_problem": False}
-        x = random.randint(0,1) # ANTEIL DER MIT FEHLER GENERIERTEN DATEN LÄSST SICH ÜBER ZWEITE ZAHL STEUERN 
+        x = random.randint(0, 1) # ANTEIL DER MIT FEHLER GENERIERTEN DATEN LÄSST SICH ÜBER ZWEITE ZAHL STEUERN
         if x == 0: 
             #generate Random DEFAULT ColdRoom
             cr = ColdRoom(mode="default")
@@ -212,7 +212,7 @@ def generateRandomColdRooms(*args, **kwargs):
         df_ENC = df_Data_mixed_mp.join(pd.DataFrame(mlb.fit_transform(df_Data_mixed_mp.pop("problems")), columns = mlb.classes_, index=df_Data_mixed_mp.index))
         print("Peak at processed Data")
         print(df_ENC.head())
-        filename = "data/" + kwargs["filename"] + ".csv"
+        filename = "Data/" + kwargs["filename"] + ".csv"
         exportPath = Path(__file__).parent / filename
         df_ENC.to_csv(exportPath, index=False)
         temp = "Saved Data as csv at " + str(exportPath)
@@ -225,6 +225,5 @@ def generateRandomColdRooms(*args, **kwargs):
 # amount legt die anzahl der generierten Daten fest
 # csv = True/False sagt ob die Daten in einer csv Datei gespeichert werden sollen
 # filename = "" -> Dateiname
-
-# print(generateRandomColdRooms(amount=100, csv=True, filename="TestData"))
+print(generateRandomColdRooms(amount=100, csv=True, filename="Test"))
 
