@@ -17,7 +17,7 @@ def datapreprocess_train(fileloca_train, num_measures, function_folder):
 
     scaler = MinMaxScaler(feature_range=(0, 1))
     X_scaled = scaler.fit_transform(X)
-    joblib.dump(scaler, 'scaler.gz')
+    joblib.dump(scaler, str(function_folder)+'\\scaler.gz')
     X_train, X_val, y_train_split, y_val_split = train_test_split(X_scaled, y_values, test_size=0.1, random_state=2)
 
     # looks redundant, is there a simpler way?
@@ -58,8 +58,8 @@ def datapreprocess_test(fileloca_train, num_measures, function_folder):
 
     X, y_values = shuffle(X, y_values)
 
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    X_test = scaler.fit_transform(X)
+    scaler = joblib.load(str(function_folder)+'\\scaler.gz')
+    X_test = scaler.transform(X)
 
     # looks redundant, is there a simpler way?
     y_test: dict = dict()
@@ -83,7 +83,7 @@ def datapreprocess_test(fileloca_train, num_measures, function_folder):
     return feature_names, measure_names, X_test, Y_test, n_features, n_classes
 
 def datapreprocess_user(fileloca_user, num_measures, function_folder):
-    num_measures = 1
+    num_measures = 4  # this method has do change, it must be calculated automatically
     dataset_train = pd.read_csv(fileloca_user)
     dataset_train_values = dataset_train.values
     feature_names = list(dataset_train.columns[:-num_measures])
@@ -91,8 +91,8 @@ def datapreprocess_user(fileloca_user, num_measures, function_folder):
 
     # X, y_values = shuffle(X, y_values)
 
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    X_user = scaler.fit_transform(X)
+    scaler = joblib.load(str(function_folder) + '\\scaler.gz')
+    X_user = scaler.transform(X)
 
 
     n_features = X.shape[1]

@@ -40,7 +40,7 @@ if run_arg[0] == 'create_models':
 elif run_arg[0] == 'test' or run_arg[0] == 'user_room':
 
 
-    feature_names, measure_names, X_test, Y_test, n_features, n_classes = datapreprocess_test(fileloca_test, num_measures)
+    feature_names, measure_names, X_test, Y_test, n_features, n_classes = datapreprocess_test(fileloca_test, num_measures, function_folder)
     if run_arg[0] == 'user_room':
         feature_names, measure_names, _, _, n_features, _ = datapreprocess_test(fileloca_test, num_measures, function_folder)
         _, X_test, _ = datapreprocess_user(fileloca_user, num_measures, function_folder)
@@ -59,7 +59,7 @@ elif run_arg[0] == 'test' or run_arg[0] == 'user_room':
         else:
             show_predictions(predictions, measure_names, Y_test, len(X_test))
     if run_arg[0] == 'user_room':
-        show_user_predictions(predictions, measure_names)
+        show_user_predictions(predictions, measure_names, len(X_test))
 
 
 
