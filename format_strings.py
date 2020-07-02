@@ -52,3 +52,21 @@ def show_predictions(predictions, measure_names, Y_test, test_count):
             ))
         print(' ')
     print('wrong predictions {}%'.format(int(100 * (1 - (counter / (len(measure_array) * test_count))))))
+
+def show_user_predictions(predictions, measure_names, test_count):
+
+
+    for i in range(0, test_count):   #100
+        measure_values = []
+        for measure in measure_names:
+            measure_values.append(predictions[measure][i])
+        measure_array = np.array(measure_values)
+        for m in range(0, len(measure_array)):
+            measure_name_at_m = measure_names[m]
+            value_at_m = int(100 * measure_values[m])
+
+            print('{} --- {}% --- for {}'.format(
+                m,
+                value_at_m,
+                measure_name_at_m,
+            ))

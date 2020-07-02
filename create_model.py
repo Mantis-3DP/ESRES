@@ -5,7 +5,9 @@ from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.optimizers import Adam
-
+from tensorflow.keras.wrappers.scikit_learn import KerasClassifier, KerasRegressor
+import eli5
+from eli5.sklearn import PermutationImportance
 
 
 
@@ -56,12 +58,14 @@ def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, mod
         model = create_model()
         print('Model name:', model.name)
         # history_callback =\
-        model.fit(X_train, Y_train, #[:,1],
+
+        model.fit(X_train, Y_train,
                   batch_size=100,
                   epochs=15,
                   # verbose=0,
-                  validation_data=(X_val, Y_val)#[:,1])
+                  validation_data=(X_val, Y_val)
                   )
+
         model.save(Path(__file__).parent / 'models/cold_system_{}.h5'.format(model.name))
         ### we need a wait and confirmation of a succsesful write
         print(Path(__file__).parent / 'models/cold_system_{}.h5 saved'.format(model.name))

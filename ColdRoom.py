@@ -1,9 +1,9 @@
 import random
 import pandas as pd
 from pathlib import Path
-
-
 from sklearn.preprocessing import MultiLabelBinarizer
+
+
 mlb = MultiLabelBinarizer()
 
 class ColdRoom:
@@ -57,8 +57,8 @@ class ColdRoom:
             self.load_fan_electrical = 210 / 108 * self.volume
         else: 
             self.load_fan_electrical = kwargs["load_fan_electrical"]
-        self.t_fan = random.randint(16*10,18*10)/10
 
+        self.t_fan = random.randint(16*10,18*10)/10
         self.load_installed = 0.0
 
         if "load_installed" in kwargs:
@@ -179,6 +179,8 @@ class ColdRoom:
 
 def generateRandomColdRooms(*args, **kwargs):
     amount = kwargs["amount"]
+    if "fault_share" in kwargs: fault_share = kwargs["fault_share"]
+    else: fault_share = 1
     dataRows = []
     for i in range(amount):
         problemOptions = { "transmission_problem" : False, 
@@ -188,10 +190,12 @@ def generateRandomColdRooms(*args, **kwargs):
                     "light_problem_2": False, 
                     "fan_problem": False, 
                     "load_installed_problem": False}
-        x = random.randint(0, 1) # ANTEIL DER MIT FEHLER GENERIERTEN DATEN LÄSST SICH ÜBER ZWEITE ZAHL STEUERN
-        if x == 0: 
+        x = random.randint(0, fault_share) # ANTEIL DER MIT FEHLER GENERIERTEN DATEN LÄSST SICH ÜBER ZWEITE ZAHL STEUERN bei 1 anteil = 50% das geht auch besser
+        if x == 0:
             #generate Random DEFAULT ColdRoom
-            cr = ColdRoom(mode="default")
+            if "user_params" in kwargs: user_params = kwargs["user_params"]
+            else: user_params = {"mode": "default"}
+            cr = ColdRoom(**user_params)
             dataRows.append(cr.createDataRow())
         else:
             amount_problems = random.randint(1, len(problemOptions)) #Hiermit kann man beeinflussen wie viele Fehler maximal gemacht werden können 
@@ -219,11 +223,34 @@ def generateRandomColdRooms(*args, **kwargs):
 
     return temp
 
-
 # Cheesy way die Methode zu callen, aber im Moment ausreichend, später über runme
 # Parameter:
 # amount legt die anzahl der generierten Daten fest
 # csv = True/False sagt ob die Daten in einer csv Datei gespeichert werden sollen
 # filename = "" -> Dateiname
 # print(generateRandomColdRooms(amount=100, csv=True, filename="Test"))
+# generateRandomColdRooms(amount=1, csv=True, filename="UserFaulty", fault_share=1)
 
+# perfect room with set params
+user_params = {
+    "length": 3,
+    "width": 4,
+    "height": 2,
+    "temp_inside": 3,
+    "load_light_electrical": 300,
+    "n_person": 1
+}
+user_params['mode'] = 'default'
+generateRandomColdRooms(amount=50, csv=True, filename="UserPerfect", fault_share=0, user_params=user_params)
+
+user_params['mode'] = 'problem'
+# das ist nur der Test, eingentlich müssten die oberen Werte
+problemOptions = {"transmission_problem": True,
+                  "people_problem_1": False,
+                  "people_problem_2": False,
+                  "light_problem_1": True,
+                  "light_problem_2": True,
+                  "fan_problem": False,
+                  "load_installed_problem": False}
+user_params['problemOptions'] = problemOptions
+generateRandomColdRooms(amount=1, csv=True, filename="UserFaulty", fault_share=0, user_params=user_params)

@@ -3,9 +3,9 @@ import numpy as np
 from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
+import joblib
 
-
-def datapreprocess_train(fileloca_train, num_measures):
+def datapreprocess_train(fileloca_train, num_measures, function_folder):
     dataset_train = pd.read_csv(fileloca_train)
     dataset_train_values = dataset_train.values
     feature_names = list(dataset_train.columns[:-1])
@@ -17,6 +17,7 @@ def datapreprocess_train(fileloca_train, num_measures):
 
     scaler = MinMaxScaler(feature_range=(0, 1))
     X_scaled = scaler.fit_transform(X)
+    joblib.dump(scaler, 'scaler.gz')
     X_train, X_val, y_train_split, y_val_split = train_test_split(X_scaled, y_values, test_size=0.1, random_state=2)
 
     # looks redundant, is there a simpler way?
@@ -47,7 +48,7 @@ def datapreprocess_train(fileloca_train, num_measures):
     return feature_names, measure_names, X_train, X_val, Y_train, Y_val, n_features, n_classes
 
 
-def datapreprocess_test(fileloca_train, num_measures):
+def datapreprocess_test(fileloca_train, num_measures, function_folder):
     dataset_train = pd.read_csv(fileloca_train)
     dataset_train_values = dataset_train.values
     feature_names = list(dataset_train.columns[:-num_measures])
@@ -55,7 +56,7 @@ def datapreprocess_test(fileloca_train, num_measures):
     X = dataset_train_values[:, :-num_measures]
     y_values = dataset_train_values[:, -num_measures:]
 
-    # X, y_values = shuffle(X, y_values)
+    X, y_values = shuffle(X, y_values)
 
     scaler = MinMaxScaler(feature_range=(0, 1))
     X_test = scaler.fit_transform(X)
@@ -80,3 +81,20 @@ def datapreprocess_test(fileloca_train, num_measures):
     n_features = X.shape[1]
 
     return feature_names, measure_names, X_test, Y_test, n_features, n_classes
+
+def datapreprocess_user(fileloca_user, num_measures, function_folder):
+    num_measures = 1
+    dataset_train = pd.read_csv(fileloca_user)
+    dataset_train_values = dataset_train.values
+    feature_names = list(dataset_train.columns[:-num_measures])
+    X = dataset_train_values[:, :-num_measures]
+
+    # X, y_values = shuffle(X, y_values)
+
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    X_user = scaler.fit_transform(X)
+
+
+    n_features = X.shape[1]
+
+    return feature_names, X_user, n_features
