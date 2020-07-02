@@ -1,11 +1,12 @@
 from pathlib import Path
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import BatchNormalization
-from keras.constraints import maxnorm
+import numpy as np
+from tensorflow import keras
+from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.optimizers import Adam
+
+
 
 
 '''
@@ -31,15 +32,14 @@ def create_custom_model(input_dim, output_dim, nodes, n=2, name='model'):
         # Create model
         model = Sequential(name=name)
         model.add(Dense(nodes, input_dim=input_dim, activation='relu'))
-        model.add(Dense(nodes / 1, activation='relu'))
-        model.add(Dense(nodes * 20 / 20, activation='relu'))
+        model.add(Dropout(0.25))
         model.add(Dense(nodes * 15 / 20, activation='relu'))
-        model.add(Dense(nodes * 20 / 20, activation='relu'))
+        model.add(Dropout(0.25))
         model.add(Dense(nodes * 10 / 20, activation='relu'))
         model.add(Dense(output_dim, activation='softmax'))
 
         # Compile model
-        model.compile(Adam(lr=0.001), loss='categorical_crossentropy',
+        model.compile(Adam(lr=0.0001), loss='categorical_crossentropy',
                       metrics=['accuracy'])
         return model
 
@@ -47,7 +47,7 @@ def create_custom_model(input_dim, output_dim, nodes, n=2, name='model'):
 
 def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, model_number):
     #n_classes = 1 #Zeile muss wieder weg
-    models = [create_custom_model(n_features, n_classes, 40, n=4, name='model_{}'.format(model_number))]
+    models = [create_custom_model(n_features, n_classes, 20, n=4, name='model_{}'.format(model_number))]
 
     for create_model in models:
         create_model().summary()
@@ -57,8 +57,8 @@ def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, mod
         print('Model name:', model.name)
         # history_callback =\
         model.fit(X_train, Y_train, #[:,1],
-                  batch_size=50,
-                  epochs=50,
+                  batch_size=100,
+                  epochs=15,
                   # verbose=0,
                   validation_data=(X_val, Y_val)#[:,1])
                   )
@@ -66,6 +66,7 @@ def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, mod
         ### we need a wait and confirmation of a succsesful write
         print(Path(__file__).parent / 'models/cold_system_{}.h5 saved'.format(model.name))
     return
+
 
 
 

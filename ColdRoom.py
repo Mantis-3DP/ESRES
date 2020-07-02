@@ -225,5 +225,5 @@ def generateRandomColdRooms(*args, **kwargs):
 # amount legt die anzahl der generierten Daten fest
 # csv = True/False sagt ob die Daten in einer csv Datei gespeichert werden sollen
 # filename = "" -> Dateiname
-print(generateRandomColdRooms(amount=100, csv=True, filename="Test"))
+# print(generateRandomColdRooms(amount=100, csv=True, filename="Test"))
 
