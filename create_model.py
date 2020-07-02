@@ -61,7 +61,7 @@ def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, mod
 
         model.fit(X_train, Y_train,
                   batch_size=100,
-                  epochs=15,
+                  epochs=20,
                   # verbose=0,
                   validation_data=(X_val, Y_val)
                   )
