@@ -74,7 +74,7 @@ elif run_arg[0] == 'test' or run_arg[0] == 'user_room':
 
 elif run_arg[0] == 'shap': # used to find importance of features
     shap.initjs()
-    modelloca = Path(__file__).parent / "models/cold_system_model_{}.h5".format(1)
+    modelloca = Path(__file__).parent / "models/cold_system_model_{}.h5".format(3)
     feature_names, measure_names, X_test, Y_test, n_features, n_classes = datapreprocess_test(fileloca_test,
                                                                                               num_measures,
                                                                                               function_folder)
