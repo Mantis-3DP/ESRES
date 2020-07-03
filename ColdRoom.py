@@ -248,7 +248,7 @@ user_params['mode'] = 'problem'
 problemOptions = {"transmission_problem": True,
                   "people_problem_1": False,
                   "people_problem_2": False,
-                  "light_problem_1": True,
+                  "light_problem_1": False,
                   "light_problem_2": True,
                   "fan_problem": False,
                   "load_installed_problem": False}
