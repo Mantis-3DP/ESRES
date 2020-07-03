@@ -4,8 +4,8 @@ from format_strings import show_top_predictions, show_predictions, show_user_pre
 from predict_measures import predict_measure
 from pathlib import Path
 import sys
-
-
+import shap
+from tensorflow import keras
 
 
 run_arg = []
@@ -63,3 +63,19 @@ elif run_arg[0] == 'test' or run_arg[0] == 'user_room':
 
 
 
+elif run_arg[0] == 'shap':
+    shap.initjs()
+    modelloca = Path(__file__).parent / "models/cold_system_model_{}.h5".format(1)
+    feature_names, measure_names, X_test, Y_test, n_features, n_classes = datapreprocess_test(fileloca_test,
+                                                                                              num_measures,
+                                                                                              function_folder)
+    model = keras.models.load_model(modelloca)
+    # explain the model's predictions using SHAP
+    # (same syntax works for LightGBM, CatBoost, scikit-learn and spark models)
+    explainer = shap.DeepExplainer(model, X_test)
+    shap_values = explainer.shap_values(X_test)
+    k=0
+    shap.summary_plot(shap_values, X_test, plot_type="bar")
+    for i in range(0, len(shap_values[:, 6])):
+        k = k + abs(shap_values[:, 6][i])
+    print(k)
