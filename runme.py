@@ -127,10 +127,10 @@ if run_arg[0] == 'user_room' and run_arg[1] == 'similar':
         print(midX)
 
 elif run_arg[0] == 'crTest':
-    cr = ColdRoom(mode="user", length=5, width=4, height=3, u_value=2)
-    print(cr.volume)
-    print(cr.n_person)
-    print(cr.problems)
+    cr = ColdRoom(mode="user", length=5, width=4, height=3, n_person=5, u_value=0.35, load_installed=1.5)
+    # print(cr.volume)
+    # print(cr.n_person)
+    # print(cr.problems)
     # print(cr.createDataRow())
     df_temp = cr.createDataFrame()
 
@@ -154,3 +154,21 @@ elif run_arg[0] == 'crTest':
     for measure in measure_names:
         print(measure)
         print(predictions[measure])
+        
+
+    # Add top 3 predictions to cr.problems
+    topProblems = []
+    for measure in measure_names:
+        if predictions[measure] > 0.5 : 
+            topProblems.append(measure)
+    
+    # TEMPORARILY SOLVING THE "none" PROBLEM:
+    # del topProblems[(len(topProblems)-1)]
+
+    # print(topProblems)
+    print("######################### CALCULATE SAVING POTENTIALS #########################")
+    cr.calculateDefaultValues() 
+    cr.problems = topProblems # Bei Bedarf so anpassen, dass alle Probleme in Klasse gespeichert sind auch wenn die Prozentzahl niedrig ist, dann dort ausfiltern 
+    cr.calculatebestCaseLoads()
+    # Use function to calcuate diff
+    # print out possible diff in Euros and BestCase

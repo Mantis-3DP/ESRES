@@ -19,7 +19,7 @@ class ColdRoom:
         if "width" not in kwargs:
             self.width = random.randint(3*100, 6*100)/100
         else:
-            self.width = kwargs["width"]
+            self.width = kwargs["width"]                                                                                                                              
         if "height" not in kwargs:
             self.height = random.randint(2.5*100, 3.6*100)/100
         else:
@@ -39,7 +39,7 @@ class ColdRoom:
             self.n_person = kwargs["n_person"]
         if "t_person"not in kwargs: 
             self.t_person = random.randint(3*10, 5*10)/10
-        else:
+        else: 
             self.t_person = kwargs["t_person"]
         if "load_light_electrical"not in kwargs:
             self.load_light_electrical = 240 / 108 * self.volume
@@ -81,7 +81,7 @@ class ColdRoom:
                 self.u_value = random.randint(3*100, 5*100)/1000
                 self.problems.append("Insulation insufficient")
 
-            if problemOptions["people_problem_1"]: 
+            if problemOptions["people_problem_1"]:                                                                                      
                 self.n_person = random.randint(4,6)
                 self.problems.append("To many people in the Room")
     
@@ -113,6 +113,7 @@ class ColdRoom:
         self.n_person_default = random.randint(1,3) 
         self.t_person_default = random.randint(3*10, 5*10)/10
         self.load_light_electrical_default = 240 / 108 * self.volume
+        self.t_light_default = self.t_person_default
         self.load_fan_electrical_default = 210 / 108 * self.volume
         self.t_fan_default = random.randint(16*10,18*10)/10
 
@@ -131,9 +132,9 @@ class ColdRoom:
         load_light = 1 * 1 * load_electrical * t_light 
         return load_light
 
-    def calculate_load_transmission(self): 
+    def calculate_load_transmission(self, u_value): 
         area = 2 * self.length * self.width + 2 * self.height * self.length + 2 * self.height * self.width
-        load_transmission = self.u_value * area * (self.temp_outside-self.temp_inside) 
+        load_transmission = u_value * area * (self.temp_outside-self.temp_inside) 
         return load_transmission
     
     def calculate_load_machine(self, load_electrical, efficiency, t_machine): 
@@ -144,14 +145,11 @@ class ColdRoom:
         return load_machine
 
 
-    # load_total = (load_transmission + load_people + load_light + load_fan) * 1.45 #Faktor für die fehlenden Lasten
-    # load_installed
-
     def calculateLoads(self):
         #Calculate Values   
         self.load_people = self.calculate_load_people(self.n_person,self.t_person) / 24000
         self.load_light = self.calculate_load_light(self.load_light_electrical,self.t_light) / 24000
-        self.load_transmission = self.calculate_load_transmission() * 24 / 24000
+        self.load_transmission = self.calculate_load_transmission(self.u_value) * 24 / 24000
         self.load_fan = self.calculate_load_machine(self.load_fan_electrical, 1, self.t_fan) / 24000
         self.load_total = (self.load_transmission + self.load_people + self.load_light + self.load_fan) * 1.45 #Faktor für die fehlenden Lasten
         if self.mode == "default": 
@@ -172,6 +170,78 @@ class ColdRoom:
         df_temp = pd.DataFrame([dataRow], columns=["load_transmission", "load_people", "n_person", "load_light", "load_fan", "load_total", "load_installed", "problems"])
         df_ENC = df_temp.join(pd.DataFrame(mlb.fit_transform(df_temp.pop("problems")), columns = mlb.classes_, index=df_temp.index))
         return df_ENC
+
+
+
+
+    problemParameters = {"Fan consumes too much energy" : "load_fan_electrical",
+                        "Installed Load too high": "load_installed",
+                        "Insulation insufficient": "u_value",
+                        "Light consumes too much energy": "load_light_electrical",
+                        "Light is on for too long": "t_light",
+                        "People too long in the Room": "t_person",
+                        "To many people in the Room": "n_person",
+                        "none" : ""
+    }
+
+    #Weiteres Dictionary mit Zuordnung problems -> calculateLoad Functions
+
+
+    loadFunctions = {
+        "load_fan_electrical" : calculate_load_machine,
+        # "load_installed" : , Sonderfall -> Lösen
+        "u_value" : calculate_load_transmission,
+        "load_light_electrical" : calculate_load_light,
+        "t_light" : calculate_load_light,
+        "t_person" : calculate_load_people,
+        "n_person" : calculate_load_people 
+    }
+
+
+    
+    def calculatebestCaseLoads(self):
+        totalSavings = 0.0 
+        for problem in self.problems:
+            # print(problem)
+            # print(self.problemParameters[problem])
+            # param_str = "self.{}_default".format((self.problemParameters[problem]))  # für Problem verantwortlichzer Parameter
+            # param = eval(param_str)
+            # print(param)
+            # self.loadFunctions[param](self)
+            if problem == "Fan consumes too much energy":
+                # Calculate Diff
+                diff = self.load_fan - (self.calculate_load_machine(self.load_fan_electrical_default,1,self.t_fan_default)/ 24000)
+                print(str(problem) + " --- " "Saving potential: " + str(diff) + "kW")
+                totalSavings += diff
+            elif problem == "Insulation insufficient":
+                diff = self.load_transmission - (self.calculate_load_transmission(self.u_value_default)* 24 / 24000)
+                print(str(problem) + " --- " "Saving potential: " + str(round(diff,3)) + "kW")
+                totalSavings += diff
+            elif problem == "Light consumes too much energy":
+                diff = self.load_light - (self.calculate_load_light(self.load_light_electrical_default, self.t_light)/ 24000)
+                print(str(problem) + " --- " "Saving potential: " + str(round(diff,3)) + "kW")
+                totalSavings += diff
+            elif problem == "Light is on for too long":
+                diff = self.load_light - (self.calculate_load_light(self.load_light_electrical, self.t_light_default)/ 24000)
+                print(str(problem) + " --- " "Saving potential: " + str(round(diff,3)) + "kW")
+                totalSavings += diff
+            elif problem == "People too long in the Room":
+                diff = self.load_people - (self.calculate_load_people(self.n_person, self.t_person_default)/ 24000)
+                print(str(problem) + " --- " "Saving potential: " + str(round(diff,3)) + "kW")
+                totalSavings += diff
+            elif problem == "To many people in the Room":
+                diff = self.load_people - (self.calculate_load_people(self.n_person_default, self.t_person)/ 24000)
+                print(str(problem) + " --- " "Saving potential: " + str(round(diff,3)) + "kW")
+                totalSavings += diff
+            elif problem == "Installed Load too high":
+                diff = self.load_installed - (self.load_total * 1.1)
+                print(str(problem) + " --- " "Saving potential: " + str(round(diff,3)) + "kW")
+                totalSavings += diff 
+                #TODO Überprüfen ob richtige Funktion
+            elif problem == "none":
+                pass
+        print("Total possible Savings: " + str(round(totalSavings,3)) + "kW")
+
 
 
 
