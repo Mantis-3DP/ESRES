@@ -8,6 +8,8 @@ import shap
 from tensorflow import keras
 import tensorflow as tf
 import numpy as np
+from ColdRoom import ColdRoom
+import joblib
 
 physical_devices = tf.config.list_physical_devices('GPU')
 try:
@@ -76,7 +78,7 @@ elif run_arg[0] == 'shap': # used to find importance of features
 
     feature_names, measure_names, X_test, Y_test, n_features, n_classes = datapreprocess_test(fileloca_test, num_measures, function_folder)
     rel_feature_per_measure = []
-    for i in range(0, len(feature_names)):
+    for i in range(0, len(feature_names)+1):
         shap.initjs()
         modelloca = Path(__file__).parent / "models/cold_system_model_{}.h5".format(i)
         model = keras.models.load_model(modelloca)
@@ -91,10 +93,16 @@ elif run_arg[0] == 'shap': # used to find importance of features
         print(top_value_positions)
         rel_feature_per_measure.append(top_value_positions)
         #rel_feature_per_measure[i].append(top_value_positions)
+    print(rel_feature_per_measure)
     if run_arg[1] == 'similar':
-        print('test')
-
-
+        feature_names, measure_names, X_train, X_val, Y_train, Y_val, n_features, n_classes = datapreprocess_train(
+            fileloca_train,
+            num_measures,
+            function_folder
+        )
+        _, X_test, _ = datapreprocess_user(fileloca_user, num_measures, function_folder)
+        X_test[0, i]
+        X_train[:, i]
 
 
 # faulty needs an update, doesnt do what i have hoped
@@ -117,3 +125,32 @@ if run_arg[0] == 'user_room' and run_arg[1] == 'similar':
         positiov = np.where(y_values[:, 7] == 1)[0]
         midX = X[positiov, 6].sum()/len(positiov)
         print(midX)
+
+elif run_arg[0] == 'crTest':
+    cr = ColdRoom(mode="user", length=5, width=4, height=3, u_value=2)
+    print(cr.volume)
+    print(cr.n_person)
+    print(cr.problems)
+    # print(cr.createDataRow())
+    df_temp = cr.createDataFrame()
+
+    num_measures = 8
+    predictions: dict = dict()
+
+    measure_names = ["Fan consumes too much energy", "Installed Load too high", "Insulation insufficient",
+                     "Light consumes too much energy", "Light is on for too long", "People too long in the Room",
+                     "To many people in the Room", "none"]
+
+    for measure in measure_names:
+        predictions[measure] = []
+
+    for i in range(0, num_measures):
+        modelloca = Path(__file__).parent / "models/cold_system_model_{}.h5".format(i)
+        scaler = joblib.load(str(function_folder) + '\\scaler.gz')
+        X = df_temp.iloc[[0]]
+        X_test = scaler.transform(X)
+        predictions[measure_names[i]] = predict_measure(modelloca, X_test)
+
+    for measure in measure_names:
+        print(measure)
+        print(predictions[measure])

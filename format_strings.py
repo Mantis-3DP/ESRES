@@ -11,7 +11,7 @@ def show_top_predictions(predictions, measure_names, Y_test, test_count):
             measure_values.append(predictions[measure][i])
         measure_array = np.array(measure_values)
         top_value_positions = measure_array.argsort()[-num_top_values:][::-1]
-        print('testdata_{} top {} measurs:'.format(i, num_top_values))
+        print('testdata_{} top {} measures:'.format(i, num_top_values))
         for m in range(0, len(top_value_positions)):
             measure_name_at_m = measure_names[top_value_positions[m]]
             value_at_m = int(100 * measure_values[top_value_positions[m]])

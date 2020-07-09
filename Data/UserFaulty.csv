@@ -1,2 +1,2 @@
-load_transmission,load_people,n_person,load_light,load_fan,load_total,load_installed,Fan consumes too much energy,Installed Load too high,Insulation insufficient,Light consumes too much energy,Light is on for too long,People too long in the Room,To many people in the Room,none
-0.448295804,0.078,2,0.04310176851851852,0.07274161481481484,0.9311018216333332,1.1173221859599998,0,1,0,0,1,0,0,0
+load_transmission,load_people,n_person,load_light,load_fan,load_total,load_installed,Installed Load too high,Insulation insufficient,Light is on for too long
+0.30726800000000004,0.033,1,0.0975,0.026600000000000002,0.6733336000000001,1.3466672000000002,1,1,1

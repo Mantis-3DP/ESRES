@@ -39,7 +39,7 @@ class ColdRoom:
             self.n_person = kwargs["n_person"]
         if "t_person"not in kwargs: 
             self.t_person = random.randint(3*10, 5*10)/10
-        else: 
+        else:
             self.t_person = kwargs["t_person"]
         if "load_light_electrical"not in kwargs:
             self.load_light_electrical = 240 / 108 * self.volume
@@ -48,7 +48,7 @@ class ColdRoom:
         if "t_light"not in kwargs:
             self.t_light = self.t_person
         else: 
-            self.t_light = kwargs["t_person"]
+            self.t_light = kwargs["t_light"]
         if "u_value"not in kwargs: 
             self.u_value = 0.242
         else:
@@ -230,7 +230,7 @@ def generateRandomColdRooms(*args, **kwargs):
 # filename = "" -> Dateiname
 # print(generateRandomColdRooms(amount=100, csv=True, filename="Test"))
 # generateRandomColdRooms(amount=1, csv=True, filename="UserFaulty", fault_share=1)
-
+'''
 # perfect room with set params
 user_params = {
     "length": 3,
@@ -254,3 +254,4 @@ problemOptions = {"transmission_problem": True,
                   "load_installed_problem": False}
 user_params['problemOptions'] = problemOptions
 generateRandomColdRooms(amount=1, csv=True, filename="UserFaulty", fault_share=0, user_params=user_params)
+'''

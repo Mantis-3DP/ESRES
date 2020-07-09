@@ -35,7 +35,7 @@ def create_custom_model(input_dim, output_dim, nodes, n=2, name='model'):
         model.add(Dense(nodes, input_dim=input_dim, activation='relu'))
         model.add(Dropout(0.25))
         model.add(Dense(nodes * 15 / 20, activation='relu'))
-        model.add(Dropout(0.25))
+        #model.add(Dropout(0.25))
         model.add(Dense(nodes * 10 / 20, activation='relu'))
         model.add(Dense(output_dim, activation='softmax'))
 
