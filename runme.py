@@ -73,19 +73,31 @@ elif run_arg[0] == 'test' or run_arg[0] == 'user_room':
 
 
 elif run_arg[0] == 'shap': # used to find importance of features
-    shap.initjs()
-    modelloca = Path(__file__).parent / "models/cold_system_model_{}.h5".format(3)
-    feature_names, measure_names, X_test, Y_test, n_features, n_classes = datapreprocess_test(fileloca_test,
-                                                                                              num_measures,
-                                                                                              function_folder)
-    model = keras.models.load_model(modelloca)
-    # explain the model's predictions using SHAP
-    # (same syntax works for LightGBM, CatBoost, scikit-learn and spark models)
-    explainer = shap.DeepExplainer(model, X_test)
-    shap_values = explainer.shap_values(X_test)
 
-    shap.summary_plot(shap_values, X_test, plot_type="bar")
+    feature_names, measure_names, X_test, Y_test, n_features, n_classes = datapreprocess_test(fileloca_test, num_measures, function_folder)
+    rel_feature_per_measure = []
+    for i in range(0, len(feature_names)):
+        shap.initjs()
+        modelloca = Path(__file__).parent / "models/cold_system_model_{}.h5".format(i)
+        model = keras.models.load_model(modelloca)
+        # explain the model's predictions using SHAP
+        # (same syntax works for LightGBM, CatBoost, scikit-learn and spark models)
+        explainer = shap.DeepExplainer(model, X_test)
+        shap_values = explainer.shap_values(X_test)
 
+        shap.summary_plot(shap_values[1], X_test, plot_type="bar")
+        importants_arr = np.mean(np.absolute(shap_values[1]), axis=0)
+        top_value_positions = np.hstack(np.argwhere(importants_arr > 0.1))
+        print(top_value_positions)
+        rel_feature_per_measure.append(top_value_positions)
+        #rel_feature_per_measure[i].append(top_value_positions)
+    if run_arg[1] == 'similar':
+        print('test')
+
+
+
+
+# faulty needs an update, doesnt do what i have hoped
 if run_arg[0] == 'user_room' and run_arg[1] == 'similar':
     k = []
     measure_values = []

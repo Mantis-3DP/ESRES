@@ -236,7 +236,7 @@ user_params = {
     "length": 3,
     "width": 4,
     "height": 2,
-    "temp_inside": 3,
+    "temp_inside": 3, #
     "load_light_electrical": 300,
     "n_person": 1
 }
