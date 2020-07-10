@@ -327,7 +327,8 @@ class ColdRoom:
                     measure_columns.append(measure)
         # print(measure_datarow)
         # print(measure_columns)
-        df_measures = pd.DataFrame([measure_datarow], columns=measure_columns)    
+        df_measures = pd.DataFrame([measure_datarow], columns=measure_columns)
+        return df_measures     
         # print(df_measures)
                 
                 
@@ -360,6 +361,7 @@ def generateRandomColdRooms(*args, **kwargs):
                     "fan_problem": False, 
                     "load_installed_problem": False}
         x = random.randint(0, fault_share) # ANTEIL DER MIT FEHLER GENERIERTEN DATEN LÄSST SICH ÜBER ZWEITE ZAHL STEUERN bei 1 anteil = 50% das geht auch besser
+        if mode2 == "setup": x = 1
         if x == 0:
             #generate Random DEFAULT ColdRoom
             if "user_params" in kwargs: user_params = kwargs["user_params"]

@@ -11,6 +11,7 @@ import numpy as np
 from ColdRoom import ColdRoom
 from ColdRoom import generateRandomColdRooms
 import joblib
+import pandas as pd
 
 physical_devices = tf.config.list_physical_devices('GPU')
 try:
@@ -179,13 +180,17 @@ elif run_arg[0] == 'crTest':
 
 
 elif run_arg[0] == 'generateData':
-    # Liste mit ColdRoom Instanzen 
-    coldRooms = generateRandomColdRooms(amount=3, csv=False, filename="testNEW", fault_share=1, object=True, mode2="setup") 
+    # Liste mit ColdRoom Instanzen -> amount bestimmt Anzahl der generierten Daten, "mode2 ="setup" sorgt dafür, dass nur fehlerhafte daten mit maßnahmen und ohne Probleme generiert werden!" 
+    coldRooms = generateRandomColdRooms(amount=10, csv=False, filename="testNEW", fault_share=1, object=True, mode2="setup") 
+    # Dateiname für generierte Daten
+    filename = "Data/" + "MeasureTestData" + ".csv"
+    # DataFrame für ColdRooms mit measure
+    df_ColdRoomsInclMeasures = pd.DataFrame()
     # Schleife über alle ColdRooms in Coldroom
     for cr in coldRooms: 
 
         df_temp = cr.createDataFrame()
-        print(df_temp)
+        # print(df_temp)
         num_measures = 8
         predictions: dict = dict()
 
@@ -209,9 +214,24 @@ elif run_arg[0] == 'generateData':
                 topProblems.append(measure)
         print("################ Top Problems ################")
         print(topProblems)
+        print("calculatingDefaultValues...")
+        cr.calculateDefaultValues() 
+        print("adding Top Problems to ColdRoom-Instance... ")
+        cr.problems = topProblems
+        print("adding measure columns...")
+        #JoinDataFrames
+        df_final = df_temp.join(cr.add_measure_columns()) 
+        print(df_final)
+        df_ColdRoomsInclMeasures = pd.concat([df_ColdRoomsInclMeasures, df_final], ignore_index=True)
 
+    if run_arg[1] == 'csv':
+        print(df_ColdRoomsInclMeasures)
+        exportPath = Path(__file__).parent / filename
+        df_ColdRoomsInclMeasures.to_csv(exportPath, index=False)
+        temp = "Saved Data as csv at " + str(exportPath)
         pass
-
+    else: 
+        print(df_ColdRoomsInclMeasures)
 
 
 
