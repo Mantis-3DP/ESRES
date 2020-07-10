@@ -9,6 +9,7 @@ from tensorflow import keras
 import tensorflow as tf
 import numpy as np
 from ColdRoom import ColdRoom
+
 import joblib
 
 physical_devices = tf.config.list_physical_devices('GPU')
@@ -127,11 +128,11 @@ if run_arg[0] == 'user_room' and run_arg[1] == 'similar':
         print(midX)
 
 elif run_arg[0] == 'crTest':
-    cr = ColdRoom(mode="user", length=5, width=4, height=3, n_person=5, u_value=0.35, load_installed=1.5)
+    cr = ColdRoom(mode="user", length=5, width=4, height=3, t_person=8, n_person=3, load_fan_electrical=200)
     # print(cr.volume)
     # print(cr.n_person)
     # print(cr.problems)
-    # print(cr.createDataRow())
+    # print(cr.createDataRow()) 
     df_temp = cr.createDataFrame()
 
     num_measures = 8
@@ -169,6 +170,17 @@ elif run_arg[0] == 'crTest':
     print("######################### CALCULATE SAVING POTENTIALS #########################")
     cr.calculateDefaultValues() 
     cr.problems = topProblems # Bei Bedarf so anpassen, dass alle Probleme in Klasse gespeichert sind auch wenn die Prozentzahl niedrig ist, dann dort ausfiltern 
-    cr.calculatebestCaseLoads()
+    # cr.calculatebestCaseLoads()
+
+    cr.add_measure_columns()
     # Use function to calcuate diff
     # print out possible diff in Euros and BestCase
+
+
+elif run_arg[0] == 'generateData':
+    ColdRoom
+
+
+
+
+    pass

@@ -2,6 +2,7 @@ import random
 import pandas as pd
 from pathlib import Path
 from sklearn.preprocessing import MultiLabelBinarizer
+import math
 
 
 mlb = MultiLabelBinarizer()
@@ -210,37 +211,127 @@ class ColdRoom:
             # self.loadFunctions[param](self)
             if problem == "Fan consumes too much energy":
                 # Calculate Diff
-                diff = self.load_fan - (self.calculate_load_machine(self.load_fan_electrical_default,1,self.t_fan_default)/ 24000)
-                print(str(problem) + " --- " "Saving potential: " + str(diff) + "kW")
+                diff = self.load_fan - (self.calculate_load_machine(self.load_fan_electrical_default,1,self.t_fan_default) / 24000)
                 totalSavings += diff
             elif problem == "Insulation insufficient":
                 diff = self.load_transmission - (self.calculate_load_transmission(self.u_value_default)* 24 / 24000)
-                print(str(problem) + " --- " "Saving potential: " + str(round(diff,3)) + "kW")
+                
                 totalSavings += diff
             elif problem == "Light consumes too much energy":
                 diff = self.load_light - (self.calculate_load_light(self.load_light_electrical_default, self.t_light)/ 24000)
-                print(str(problem) + " --- " "Saving potential: " + str(round(diff,3)) + "kW")
+                
                 totalSavings += diff
             elif problem == "Light is on for too long":
                 diff = self.load_light - (self.calculate_load_light(self.load_light_electrical, self.t_light_default)/ 24000)
-                print(str(problem) + " --- " "Saving potential: " + str(round(diff,3)) + "kW")
+                
                 totalSavings += diff
             elif problem == "People too long in the Room":
                 diff = self.load_people - (self.calculate_load_people(self.n_person, self.t_person_default)/ 24000)
-                print(str(problem) + " --- " "Saving potential: " + str(round(diff,3)) + "kW")
+                
                 totalSavings += diff
             elif problem == "To many people in the Room":
                 diff = self.load_people - (self.calculate_load_people(self.n_person_default, self.t_person)/ 24000)
-                print(str(problem) + " --- " "Saving potential: " + str(round(diff,3)) + "kW")
+                
                 totalSavings += diff
             elif problem == "Installed Load too high":
                 diff = self.load_installed - (self.load_total * 1.1)
-                print(str(problem) + " --- " "Saving potential: " + str(round(diff,3)) + "kW")
+                
                 totalSavings += diff 
                 #TODO Überprüfen ob richtige Funktion
             elif problem == "none":
                 pass
         print("Total possible Savings: " + str(round(totalSavings,3)) + "kW")
+
+
+    ######################## CALCULATE MEASURE IMPACTS ########################  
+
+    
+    energycost = 0.3 # Euro/kWh
+
+    user_preference = "NOCH ZU SETZEN"
+    
+
+    #### "Wirtschaftlichkeitsfunktionen" (sehr trivial) ###
+
+    def clean_fan(self):
+        diff = self.load_fan - (self.calculate_load_machine(self.load_fan_electrical_default,1,self.t_fan_default) / 24000)
+        savings = diff*24*365*self.energycost*0.2
+        # Annahme: Mit Reinigung kann nur 20 Prozent der Einsparungen erreicht werden, Reinigung kostet 150 Euro 
+        investion = 150 
+        a_years = investion/savings
+        # TODO SKALIERUNG!!!
+        # print("clean fan: " + str(a_years))
+        return a_years/100    
+
+    def new_fan(self):
+        diff = self.load_fan - (self.calculate_load_machine(self.load_fan_electrical_default,1,self.t_fan_default) / 24000)
+        savings = diff*24*365*self.energycost
+        # Annahme Kosten neuer Lüfter:  
+        investion = 3000 #TODO Theoretisch skalierbar mit Volumen -> Wollen wir das?
+        a_years = investion/savings 
+        # TODO SKALIERUNG!!!
+        # print("new fan: " + str(a_years))
+        return a_years/100
+
+    def install_countdown(self):
+        # Ersprarnis im Vergleich zu default
+        diff = self.load_people - (self.calculate_load_people(self.n_person, self.t_person_default)/ 24000)
+        # Ersparnis pro Jahr in Euro 
+        savings = diff*24*365*self.energycost
+        # Investitionskosten 
+        # Annahme Pro Fläche von 15m² wird ein timer für 1100 Euro benötigt, Nur ganze Timer sind möglich -> 15m² -> 1 16m²-> 2 
+        investion = math.ceil(self.length * self.width / 15) * 1100
+        # print(investion)
+        #Armortisierungszeitraum
+        a_years = investion/savings 
+        # TODO SKALIERUNG!!!
+        # print("install countdown: " + str(a_years))
+        return a_years/100
+
+    def school_workers(self):
+        diff = self.load_people - (self.calculate_load_people(self.n_person, self.t_person_default)/ 24000)
+        savings = diff*24*365*self.energycost
+        # Annahme Schulungskosten pro person von 250 Euro 
+        investion = self.n_person * 250
+        a_years = investion/savings 
+        # TODO SKALIERUNG!!!
+        # print("shool workers: " + str(a_years))
+        return a_years/100
+
+    # measures = {
+    #     "Fan consumes too much energy" : [ clean_fan,new_fan],
+    #     "People too long in the Room": [install_countdown,school_workers]
+    # }
+
+    measures = {
+        "Fan consumes too much energy" : 
+            {"clean_fan": clean_fan,"new_fan": new_fan},
+        "People too long in the Room": 
+            {"install_countdown": install_countdown, "school_workers": school_workers}
+    }
+
+    def add_measure_columns(self):
+        measure_datarow = []
+        measure_columns = []
+        for problem in self.problems: 
+            # print(problem)
+            if problem in self.measures: 
+                for measure in self.measures[problem]:
+                    measure_datarow.append(self.measures[problem][measure](self))
+                    measure_columns.append(measure)
+        # print(measure_datarow)
+        # print(measure_columns)
+        df_measures = pd.DataFrame([measure_datarow], columns=measure_columns)    
+        # print(df_measures)
+                
+                
+            
+    
+
+     
+
+
+
 
 
 
