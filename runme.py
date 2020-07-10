@@ -9,7 +9,7 @@ from tensorflow import keras
 import tensorflow as tf
 import numpy as np
 from ColdRoom import ColdRoom
-
+from ColdRoom import generateRandomColdRooms
 import joblib
 
 physical_devices = tf.config.list_physical_devices('GPU')
@@ -134,6 +134,7 @@ elif run_arg[0] == 'crTest':
     # print(cr.problems)
     # print(cr.createDataRow()) 
     df_temp = cr.createDataFrame()
+    print(df_temp)
 
     num_measures = 8
     predictions: dict = dict()
@@ -178,7 +179,39 @@ elif run_arg[0] == 'crTest':
 
 
 elif run_arg[0] == 'generateData':
-    ColdRoom
+    # Liste mit ColdRoom Instanzen 
+    coldRooms = generateRandomColdRooms(amount=3, csv=False, filename="testNEW", fault_share=1, object=True, mode2="setup") 
+    # Schleife über alle ColdRooms in Coldroom
+    for cr in coldRooms: 
+
+        df_temp = cr.createDataFrame()
+        print(df_temp)
+        num_measures = 8
+        predictions: dict = dict()
+
+        measure_names = ["Fan consumes too much energy", "Installed Load too high", "Insulation insufficient",
+                     "Light consumes too much energy", "Light is on for too long", "People too long in the Room",
+                     "To many people in the Room", "none"]
+
+        for measure in measure_names:
+            predictions[measure] = []
+
+        for i in range(0, num_measures):
+            modelloca = Path(__file__).parent / "models/cold_system_model_{}.h5".format(i)
+            scaler = joblib.load(str(function_folder) + '\\scaler.gz')
+            X = df_temp.iloc[[0]]
+            X_test = scaler.transform(X)
+            predictions[measure_names[i]] = predict_measure(modelloca, X_test)
+
+        topProblems = []
+        for measure in measure_names:
+            if predictions[measure] > 0.5 : 
+                topProblems.append(measure)
+        print("################ Top Problems ################")
+        print(topProblems)
+
+        pass
+
 
 
 

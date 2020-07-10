@@ -68,6 +68,8 @@ class ColdRoom:
         self.dataRow = [] #needed for later
         self.mode = kwargs.get("mode")
         self.problems = []
+        if "mode2" in kwargs:
+            self.mode2 = kwargs["mode2"]
 
 
         if self.mode == "default":
@@ -169,8 +171,12 @@ class ColdRoom:
     def createDataFrame(self):
         dataRow = self.createDataRow()
         df_temp = pd.DataFrame([dataRow], columns=["load_transmission", "load_people", "n_person", "load_light", "load_fan", "load_total", "load_installed", "problems"])
-        df_ENC = df_temp.join(pd.DataFrame(mlb.fit_transform(df_temp.pop("problems")), columns = mlb.classes_, index=df_temp.index))
-        return df_ENC
+        if self.mode2 == "setup":
+            df_temp = df_temp.drop(['problems'], axis=1)
+            return df_temp
+        else:
+            df_ENC = df_temp.join(pd.DataFrame(mlb.fit_transform(df_temp.pop("problems")), columns = mlb.classes_, index=df_temp.index))
+            return df_ENC
 
 
 
@@ -339,10 +345,12 @@ class ColdRoom:
 ############## DATA GENERATION ##########
 
 def generateRandomColdRooms(*args, **kwargs):
+    mode2 = kwargs["mode2"]
     amount = kwargs["amount"]
     if "fault_share" in kwargs: fault_share = kwargs["fault_share"]
     else: fault_share = 1
     dataRows = []
+    coldRooms = []
     for i in range(amount):
         problemOptions = { "transmission_problem" : False, 
                     "people_problem_1": False, 
@@ -356,14 +364,22 @@ def generateRandomColdRooms(*args, **kwargs):
             #generate Random DEFAULT ColdRoom
             if "user_params" in kwargs: user_params = kwargs["user_params"]
             else: user_params = {"mode": "default"}
-            cr = ColdRoom(**user_params)
+            if mode2 == "setup":
+                cr = ColdRoom(**user_params, mode2=mode2)
+            else: 
+                cr = ColdRoom(**user_params)
+            coldRooms.append(cr)
             dataRows.append(cr.createDataRow())
         else:
             amount_problems = random.randint(1, len(problemOptions)) #Hiermit kann man beeinflussen wie viele Fehler maximal gemacht werden können 
             for p in range(amount_problems):                      #Mindestanzahl ist nicht direkt möglich in der Form, da nicht gecheckt wird ob Probleme "doppelt auf True" gesetzt werden 
                 problemOptions[random.choice(list(problemOptions.keys()))] = True
             # generate Random FAULTY ColdRoom
-            cr = ColdRoom(mode="problem", problemOptions=problemOptions)
+            if mode2 == "setup":
+                cr = ColdRoom(mode="problem", problemOptions=problemOptions, mode2=mode2)
+            else: 
+                cr = ColdRoom(mode="problem", problemOptions=problemOptions)
+            coldRooms.append(cr)
             dataRows.append(cr.createDataRow())
 
     df_Data_mixed_mp = pd.DataFrame(dataRows, columns=["load_transmission", "load_people", "n_person", "load_light", "load_fan", "load_total", "load_installed", "problems"]) # EIN S BEI PROBLEM MEHR!!
@@ -382,6 +398,10 @@ def generateRandomColdRooms(*args, **kwargs):
         df_ENC.to_csv(exportPath, index=False)
         temp = "Saved Data as csv at " + str(exportPath)
 
+    # FÜR Übergabe von Objekten
+    if kwargs["object"] == True:
+        print("exported " + str(len(coldRooms)) + "ColdRooms in List")
+        temp = coldRooms
     return temp
 
 # Cheesy way die Methode zu callen, aber im Moment ausreichend, später über runme
