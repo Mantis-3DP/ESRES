@@ -23,10 +23,11 @@ except:
 run_arg = []
 for element in sys.argv:
     run_arg.append(element)
+print(run_arg)
 
 
 function_folder = Path(__file__).parent / "saved_functions"
-fileloca_train = Path(__file__).parent / "Data/TrainData.csv"
+fileloca_train = Path(__file__).parent / "Data/ProblemTestData.csv"
 fileloca_test = Path(__file__).parent / "Data/TestData.csv"
 fileloca_user = Path(__file__).parent / "Data/UserFaulty.csv"
 fileloca_problem = Path(__file__).parent / "Data/ProblemTestData.csv"
@@ -40,15 +41,28 @@ possible_problems = [
     "Installed Load too high",
     "none"
 ]
-print(possible_problems)
+feature_names = [
+    "load_people",
+    "load_light",
+    "load_transmission",
+    "load_fan",
+    "load_total",
+    "load_installed"
+    ]
+
+
 num_problems = len(possible_problems)
+num_features = len(feature_names)
+num_measure = 4
 
 
 if 'create_models' in run_arg:
     # create models
-    feature_names, problem_names, X_train, X_val, Y_train, Y_val, n_features, n_classes = datapreprocess_train(
+    feature_names, problem_names, X_machine_train, X_machine_val, X_user_train, X_user_val, Y_problem_train, Y_problem_val, Y_measures_train, Y_measures_val = datapreprocess_train(
         fileloca_train,
         num_problems,
+        num_features,
+        num_measure,
         function_folder
     )
 
@@ -66,6 +80,8 @@ if 'create_models' in run_arg:
             problem = problem_names[i]
             model_num = i
             create_all_models(X_train, X_val, Y_train[problem], Y_val[problem], n_features, n_classes[problem], model_num)
+    if 'measure_models' in run_arg:
+        pass
 
 
 elif 'test' in run_arg or 'user_room'in run_arg:
@@ -195,7 +211,7 @@ elif 'crTest' in run_arg:
 
 elif 'generateData' in run_arg:
     # Liste mit ColdRoom Instanzen -> amount bestimmt Anzahl der generierten Daten, "mode2 ="setup" sorgt dafür, dass nur fehlerhafte daten mit maßnahmen und ohne Probleme generiert werden!" 
-    coldRooms = generateRandomColdRooms(amount=10000, csv=False, filename="testNEW", fault_share=1, object=True, mode2="setup")
+    coldRooms = generateRandomColdRooms(amount=1000, csv=False, filename="testNEW", fault_share=1, object=True, mode2="setup")
     # Dateiname für generierte Daten
     filename = "Data/" + "ProblemTestData" + ".csv"
     # DataFrame für ColdRooms mit problem
@@ -216,9 +232,7 @@ elif 'generateData' in run_arg:
             "load_installed",
         ])
         temp_array = []
-        print(possible_problems)
         for problem in possible_problems:
-            print(problem)
             if problem in cr.dataRow[-1]: temp_array.append(1)
             else: temp_array.append(0)
         df_problems = pd.DataFrame([temp_array], columns=possible_problems)
@@ -255,13 +269,17 @@ elif 'generateData' in run_arg:
         #JoinDataFrames
         df_final = df_mid.join(cr.add_measure_columns())
         df_ColdRoomsInclMeasures = pd.concat([df_ColdRoomsInclMeasures, df_final], ignore_index=True)
+        df_ColdRoomsInclMeasures = df_ColdRoomsInclMeasures.fillna(0)
 
     if 'csv' in run_arg:
         # print(df_ColdRoomsInclMeasures)
         exportPath = Path(__file__).parent / filename
         df_ColdRoomsInclMeasures.to_csv(exportPath, index=False)
         temp = "Saved Data as csv at " + str(exportPath)
-        pass
+        print(temp)
+
+    else:
+        print('didnt read csv')
 
 
 elif 'predict_measure' in run_arg:

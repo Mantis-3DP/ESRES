@@ -5,47 +5,50 @@ from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 import joblib
 
-def datapreprocess_train(fileloca_train, num_problems, function_folder):
+def datapreprocess_train(fileloca_train, num_problems, num_features, num_measure, function_folder):
     dataset_train = pd.read_csv(fileloca_train)
     dataset_train_values = dataset_train.values
-    feature_names = list(dataset_train.columns[:-1])
-    problem_names = list(dataset_train.columns[-num_problems:])
-    X = dataset_train_values[:, :-num_problems]
-    y_values = dataset_train_values[:, -num_problems:]
+    feature_names = list(dataset_train.columns[:num_features+1])
+    problem_names = list(dataset_train.columns[num_features+1:num_features+num_problems+1])
+    measure_names = list(dataset_train.columns[-num_measure:])
+    x_machine = dataset_train_values[:, :num_features]
+    x_user = dataset_train_values[:, num_features+1:num_features+num_problems+1]   # muss anpasst werden
+    y_problems = dataset_train_values[:, num_features+1:num_features+num_problems+1]
+    y_measures = dataset_train_values[:, -num_measure:]
 
-    X, y_values = shuffle(X, y_values)
+    x_machine, x_user, y_problems, y_measures = shuffle(x_machine, x_user, y_problems, y_measures)
 
     scaler = MinMaxScaler(feature_range=(0, 1))
-    X_scaled = scaler.fit_transform(X)
-    joblib.dump(scaler, str(function_folder)+'\\scaler.gz')
-    X_train, X_val, y_train_split, y_val_split = train_test_split(X_scaled, y_values, test_size=0.1, random_state=2)
+    X_machine_scaled = scaler.fit_transform(x_machine)
+    joblib.dump(scaler, str(function_folder)+'\\scaler_X_machine.gz')
+    X_user_scaled = scaler.fit_transform(x_user)
+    joblib.dump(scaler, str(function_folder) + '\\scaler_X_user.gz')
+    Y_measures_scaled = scaler.fit_transform(y_measures)
+    joblib.dump(scaler, str(function_folder) + '\\scaler_Y_measure.gz')
+    X_machine_train, X_machine_val, X_user_train, X_user_val, y_problems_train, y_problems_val, Y_measures_train, Y_measures_val = train_test_split(X_machine_scaled, X_user_scaled, y_problems, Y_measures_scaled, test_size=0.1, random_state=2)
 
     # looks redundant, is there a simpler way?
     y_train: dict = dict()
-    Y_train: dict = dict()
+    Y_problem_train: dict = dict()
     y_val: dict = dict()
-    Y_val: dict = dict()
-    n_classes: dict = dict()
+    Y_problem_val: dict = dict()
     for problem in problem_names:
         y_train[problem] = []
-        Y_train[problem] = []
+        Y_problem_train[problem] = []
         y_val[problem] = []
-        Y_val[problem] = []
-        n_classes[problem] = 0
+        Y_problem_val[problem] = []
+
 
     for t in range(0, num_problems):
-        y_train[problem_names[t]] = np.array(y_train_split[:, t])
-        y_val[problem_names[t]] = np.array(y_val_split[:, t])
+        y_train[problem_names[t]] = np.array(y_problems_train[:, t])
+        y_val[problem_names[t]] = np.array(y_problems_val[:, t])
 
         # One hot encoding
         enc = OneHotEncoder()
-        Y_train[problem_names[t]] = enc.fit_transform(y_train[problem_names[t]][:, np.newaxis]).toarray()
-        Y_val[problem_names[t]] = enc.fit_transform(y_val[problem_names[t]][:, np.newaxis]).toarray()
-        n_classes[problem_names[t]] = len(Y_train[problem_names[0]][0])
+        Y_problem_train[problem_names[t]] = enc.fit_transform(y_train[problem_names[t]][:, np.newaxis]).toarray()
+        Y_problem_val[problem_names[t]] = enc.fit_transform(y_val[problem_names[t]][:, np.newaxis]).toarray()
 
-    n_features = X.shape[1]
-
-    return feature_names, problem_names, X_train, X_val, Y_train, Y_val, n_features, n_classes
+    return feature_names, problem_names, X_machine_train, X_machine_val, X_user_train, X_user_val, Y_problem_train, Y_problem_val, Y_measures_train, Y_measures_val
 
 
 def datapreprocess_test(fileloca_train, num_problems, function_folder):
