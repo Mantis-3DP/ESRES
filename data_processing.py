@@ -5,13 +5,13 @@ from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 import joblib
 
-def datapreprocess_train(fileloca_train, num_measures, function_folder):
+def datapreprocess_train(fileloca_train, num_problems, function_folder):
     dataset_train = pd.read_csv(fileloca_train)
     dataset_train_values = dataset_train.values
     feature_names = list(dataset_train.columns[:-1])
-    measure_names = list(dataset_train.columns[-num_measures:])
-    X = dataset_train_values[:, :-num_measures]
-    y_values = dataset_train_values[:, -num_measures:]
+    problem_names = list(dataset_train.columns[-num_problems:])
+    X = dataset_train_values[:, :-num_problems]
+    y_values = dataset_train_values[:, -num_problems:]
 
     X, y_values = shuffle(X, y_values)
 
@@ -26,35 +26,35 @@ def datapreprocess_train(fileloca_train, num_measures, function_folder):
     y_val: dict = dict()
     Y_val: dict = dict()
     n_classes: dict = dict()
-    for measure in measure_names:
-        y_train[measure] = []
-        Y_train[measure] = []
-        y_val[measure] = []
-        Y_val[measure] = []
-        n_classes[measure] = 0
+    for problem in problem_names:
+        y_train[problem] = []
+        Y_train[problem] = []
+        y_val[problem] = []
+        Y_val[problem] = []
+        n_classes[problem] = 0
 
-    for t in range(0, num_measures):
-        y_train[measure_names[t]] = np.array(y_train_split[:, t])
-        y_val[measure_names[t]] = np.array(y_val_split[:, t])
+    for t in range(0, num_problems):
+        y_train[problem_names[t]] = np.array(y_train_split[:, t])
+        y_val[problem_names[t]] = np.array(y_val_split[:, t])
 
         # One hot encoding
         enc = OneHotEncoder()
-        Y_train[measure_names[t]] = enc.fit_transform(y_train[measure_names[t]][:, np.newaxis]).toarray()
-        Y_val[measure_names[t]] = enc.fit_transform(y_val[measure_names[t]][:, np.newaxis]).toarray()
-        n_classes[measure_names[t]] = len(Y_train[measure_names[0]][0])
+        Y_train[problem_names[t]] = enc.fit_transform(y_train[problem_names[t]][:, np.newaxis]).toarray()
+        Y_val[problem_names[t]] = enc.fit_transform(y_val[problem_names[t]][:, np.newaxis]).toarray()
+        n_classes[problem_names[t]] = len(Y_train[problem_names[0]][0])
 
     n_features = X.shape[1]
 
-    return feature_names, measure_names, X_train, X_val, Y_train, Y_val, n_features, n_classes
+    return feature_names, problem_names, X_train, X_val, Y_train, Y_val, n_features, n_classes
 
 
-def datapreprocess_test(fileloca_train, num_measures, function_folder):
+def datapreprocess_test(fileloca_train, num_problems, function_folder):
     dataset_train = pd.read_csv(fileloca_train)
     dataset_train_values = dataset_train.values
-    feature_names = list(dataset_train.columns[:-num_measures])
-    measure_names = list(dataset_train.columns[-num_measures:])
-    X = dataset_train_values[:, :-num_measures]
-    y_values = dataset_train_values[:, -num_measures:]
+    feature_names = list(dataset_train.columns[:-num_problems])
+    problem_names = list(dataset_train.columns[-num_problems:])
+    X = dataset_train_values[:, :-num_problems]
+    y_values = dataset_train_values[:, -num_problems:]
 
     X, y_values = shuffle(X, y_values)
 
@@ -65,29 +65,31 @@ def datapreprocess_test(fileloca_train, num_measures, function_folder):
     y_test: dict = dict()
     Y_test: dict = dict()
     n_classes: dict = dict()
-    for measure in measure_names:
-        y_test[measure] = []
-        Y_test[measure] = []
-        n_classes[measure] = 0
+    for problem in problem_names:
+        y_test[problem] = []
+        Y_test[problem] = []
+        n_classes[problem] = 0
 
-    for t in range(0, num_measures):
-        y_test[measure_names[t]] = np.array(y_values[:, t])
+    for t in range(0, num_problems):
+        y_test[problem_names[t]] = np.array(y_values[:, t])
         # One hot encoding
         enc = OneHotEncoder()
-        Y_test[measure_names[t]] = enc.fit_transform(y_test[measure_names[t]][:, np.newaxis]).toarray()
-        #Labels per measure
-        n_classes[measure_names[t]] = len(Y_test[measure_names[0]][0])
+        Y_test[problem_names[t]] = enc.fit_transform(y_test[problem_names[t]][:, np.newaxis]).toarray()
+        #Labels per problem
+        n_classes[problem_names[t]] = len(Y_test[problem_names[0]][0])
 
     n_features = X.shape[1]
 
-    return feature_names, measure_names, X_test, Y_test, n_features, n_classes
+    return feature_names, problem_names, X_test, Y_test, n_features, n_classes
 
-def datapreprocess_user(fileloca_user, num_measures, function_folder):
-    num_measures = 8  # this method has do change, it must be calculated automatically
+def datapreprocess_user(fileloca_user, num_problems, function_folder):
+    num_problems = 8  # this method has do change, it must be calculated automatically
     dataset_train = pd.read_csv(fileloca_user)
     dataset_train_values = dataset_train.values
-    feature_names = list(dataset_train.columns[:-num_measures])
-    X = dataset_train_values[:, :-num_measures]
+    feature_names = list(dataset_train.columns[:-num_problems])
+
+    ############################ die 7 muss weg
+    X = dataset_train_values[:, :7]   ## das muss verändert werden
 
     # X, y_values = shuffle(X, y_values)
 
@@ -100,13 +102,13 @@ def datapreprocess_user(fileloca_user, num_measures, function_folder):
     return feature_names, X_user, n_features
 
 
-def datapreprocess_calc(fileloca_train, num_measures, function_folder):
+def datapreprocess_calc(fileloca_train, num_problems, function_folder):
     dataset_train = pd.read_csv(fileloca_train)
     dataset_train_values = dataset_train.values
     feature_names = list(dataset_train.columns[:-1])
-    measure_names = list(dataset_train.columns[-num_measures:])
-    X = dataset_train_values[:, :-num_measures]
-    y_values = dataset_train_values[:, -num_measures:]
+    problem_names = list(dataset_train.columns[-num_problems:])
+    X = dataset_train_values[:, :-num_problems]
+    y_values = dataset_train_values[:, -num_problems:]
 
     X_s, y_values = shuffle(X, y_values)
 
@@ -121,23 +123,23 @@ def datapreprocess_calc(fileloca_train, num_measures, function_folder):
     y_val: dict = dict()
     Y_val: dict = dict()
     n_classes: dict = dict()
-    for measure in measure_names:
-        y_train[measure] = []
-        Y_train[measure] = []
-        y_val[measure] = []
-        Y_val[measure] = []
-        n_classes[measure] = 0
+    for problem in problem_names:
+        y_train[problem] = []
+        Y_train[problem] = []
+        y_val[problem] = []
+        Y_val[problem] = []
+        n_classes[problem] = 0
 
-    for t in range(0, num_measures):
-        y_train[measure_names[t]] = np.array(y_train_split[:, t])
-        y_val[measure_names[t]] = np.array(y_val_split[:, t])
+    for t in range(0, num_problems):
+        y_train[problem_names[t]] = np.array(y_train_split[:, t])
+        y_val[problem_names[t]] = np.array(y_val_split[:, t])
 
         # One hot encoding
         enc = OneHotEncoder()
-        Y_train[measure_names[t]] = enc.fit_transform(y_train[measure_names[t]][:, np.newaxis]).toarray()
-        Y_val[measure_names[t]] = enc.fit_transform(y_val[measure_names[t]][:, np.newaxis]).toarray()
-        n_classes[measure_names[t]] = len(Y_train[measure_names[0]][0])
+        Y_train[problem_names[t]] = enc.fit_transform(y_train[problem_names[t]][:, np.newaxis]).toarray()
+        Y_val[problem_names[t]] = enc.fit_transform(y_val[problem_names[t]][:, np.newaxis]).toarray()
+        n_classes[problem_names[t]] = len(Y_train[problem_names[0]][0])
 
     n_features = X.shape[1]
 
-    return feature_names, measure_names, X_train, X_val, Y_train, Y_val, n_features, n_classes, X, y_train_split
+    return feature_names, problem_names, X_train, X_val, Y_train, Y_val, n_features, n_classes, X, y_train_split

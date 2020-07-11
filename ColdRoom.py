@@ -72,6 +72,7 @@ class ColdRoom:
             self.mode2 = kwargs["mode2"]
 
 
+
         if self.mode == "default":
             self.problems = ["none"]
             self.defaultRoom = True
@@ -373,9 +374,10 @@ def generateRandomColdRooms(*args, **kwargs):
             coldRooms.append(cr)
             dataRows.append(cr.createDataRow())
         else:
-            amount_problems = random.randint(1, len(problemOptions)) #Hiermit kann man beeinflussen wie viele Fehler maximal gemacht werden können 
-            for p in range(amount_problems):                      #Mindestanzahl ist nicht direkt möglich in der Form, da nicht gecheckt wird ob Probleme "doppelt auf True" gesetzt werden 
-                problemOptions[random.choice(list(problemOptions.keys()))] = True
+            amount_problems = random.randint(1, len(problemOptions)) #Hiermit kann man beeinflussen wie viele Fehler maximal gemacht werden können
+            chosen_problems = random.sample(list(problemOptions.keys()), k=amount_problems)
+            for problems in chosen_problems:
+                problemOptions[problems] = True
             # generate Random FAULTY ColdRoom
             if mode2 == "setup":
                 cr = ColdRoom(mode="problem", problemOptions=problemOptions, mode2=mode2)
@@ -413,6 +415,8 @@ def generateRandomColdRooms(*args, **kwargs):
 # filename = "" -> Dateiname
 # print(generateRandomColdRooms(amount=100, csv=True, filename="Test"))
 # generateRandomColdRooms(amount=1, csv=True, filename="UserFaulty", fault_share=1)
+# generateRandomColdRooms(amount=100, csv=True, filename="Test", mode2="setup", object=True)
+
 '''
 # perfect room with set params
 user_params = {
