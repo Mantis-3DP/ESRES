@@ -52,6 +52,10 @@ feature_names = [
     "load_installed",
     ]
 
+user_input = [
+    "preference_investment"
+]
+
 
 num_problems = len(possible_problems)
 num_features = len(feature_names)
@@ -111,7 +115,7 @@ if 'user_room' in run_arg and 'similar' in run_arg:
 
 elif 'generateData' in run_arg:
     # Liste mit ColdRoom Instanzen -> amount bestimmt Anzahl der generierten Daten, "mode2 ="setup" sorgt dafür, dass nur fehlerhafte daten mit maßnahmen und ohne Probleme generiert werden!" 
-    coldRooms = generateRandomColdRooms(amount=10, csv=False, filename="testNEW", fault_share=1, object=True)
+    coldRooms = generateRandomColdRooms(amount=1000, csv=False, filename="testNEW", fault_share=1, object=True)
     # Dateiname für generierte Daten
     filename = "Data/" + "ProblemTestData" + ".csv"
     # DataFrame für ColdRooms mit problem

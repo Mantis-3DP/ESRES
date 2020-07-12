@@ -219,30 +219,28 @@ class ColdRoom:
     
     energycost = 0.3 # Euro/kWh
 
-    user_preference = "NOCH ZU SETZEN"
-    
 
     #### "Wirtschaftlichkeitsfunktionen" (sehr trivial) ###
 
     def clean_fan(self):
         diff = self.load_fan - (self.calculate_load_machine(self.load_fan_electrical_default,1,self.t_fan_default) / 24000)
-        savings = diff*24*365*self.energycost*0.2
-        # Annahme: Mit Reinigung kann nur 20 Prozent der Einsparungen erreicht werden, Reinigung kostet 150 Euro 
-        investion = 150 
+        savings = diff*24*365*self.energycost*random.randint(15,30)/100
+        # Annahme: Mit Reinigung kann nur 15 bis 30 Prozent der Einsparungen erreicht werden, Reinigung kostet 200 Euro 
+        investion = 300
         a_years = investion/savings
         # TODO SKALIERUNG!!!
         # print("clean fan: " + str(a_years))
-        return a_years/100    
+        return a_years   
 
     def new_fan(self):
         diff = self.load_fan - (self.calculate_load_machine(self.load_fan_electrical_default,1,self.t_fan_default) / 24000)
         savings = diff*24*365*self.energycost
         # Annahme Kosten neuer Lüfter:  
-        investion = 3000 #TODO Theoretisch skalierbar mit Volumen -> Wollen wir das?
+        investion = 1450 #TODO Theoretisch skalierbar mit Volumen -> Wollen wir das?
         a_years = investion/savings 
         # TODO SKALIERUNG!!!
         # print("new fan: " + str(a_years))
-        return a_years/100
+        return a_years
 
     def install_countdown(self):
         # Ersprarnis im Vergleich zu default
@@ -251,23 +249,23 @@ class ColdRoom:
         savings = diff*24*365*self.energycost
         # Investitionskosten 
         # Annahme Pro Fläche von 15m² wird ein timer für 1100 Euro benötigt, Nur ganze Timer sind möglich -> 15m² -> 1 16m²-> 2 
-        investion = math.ceil(self.length * self.width / 15) * 1100
+        investion = math.ceil(self.length * self.width / 15) * 775
         # print(investion)
         #Armortisierungszeitraum
         a_years = investion/savings 
         # TODO SKALIERUNG!!!
         # print("install countdown: " + str(a_years))
-        return a_years/100
+        return a_years
 
     def school_workers(self):
         diff = self.load_people - (self.calculate_load_people(self.n_person, self.t_person_default)/ 24000)
         savings = diff*24*365*self.energycost
-        # Annahme Schulungskosten pro person von 250 Euro 
-        investion = self.n_person * 250
+        # Annahme Schulungskosten pro person von 300 Euro 
+        investion = self.n_person * 300
         a_years = investion/savings 
         # TODO SKALIERUNG!!!
         # print("shool workers: " + str(a_years))
-        return a_years/100
+        return a_years
 
     # measures = {
     #     "Fan consumes too much energy" : [ clean_fan,new_fan],
