@@ -11,7 +11,7 @@ class prepped_data:
     def __init__(self, dataset_train, function_folder, possible_problems, feature_names, user_input, measures, num_problems, num_features, num_measure, num_user_input):
         self.dataset_train = dataset_train
 
-
+    def
         self.dataset_train_machine = self.dataset_train[feature_names]
         self.dataset_train_user = self.dataset_train[user_input]
         self.dataset_train_problems = self.dataset_train[possible_problems]
@@ -27,10 +27,7 @@ class prepped_data:
 
 
     def drop_rows(self):
-        self.dataset_train = self.dataset_train[]
-        indexNames = self.dataset_train[self.dataset_train['Fan consumes too much energy'] == '0'].index
-        # Delete these row indexes from dataFrame
-        self.dataset_train.drop(indexNames, inplace=True)
+        self.dataset_train = self.dataset_train[self.dataset_train["n_person"] == 1]
         print('ausgeführt')
 
 
