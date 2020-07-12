@@ -40,20 +40,25 @@ class prepped_data:
         return Y, n_classes
 
     def append_user(self):
-        self.X_machine_train = np.hstack((self.X_machine_train, self.X_user_train))
-        self.X_machine_val = np.hstack((self.X_machine_val, self.X_user_val))
+        self.X_machine = np.hstack((self.X_machine, self.X_user))
+        self.X_machine_split = np.hstack((self.X_machine_split, self.X_user_split))
         self.feature_names = np.hstack((self.feature_names, self.user_input))
 
-    def get_data(self):
-        self.dataset_train = shuffle(self.dataset_train)
+
+
+    def get_data(self, type):
+        # type asks if data is used for training or testing w/ unknown Y or testing w/ known Y
+        if type == "train":
+            self.dataset_train = shuffle(self.dataset_train)
+        if type == "test_known" or type == "train":
+            dataset_problems = self.dataset_train[self.possible_problems]
+            dataset_measures = self.dataset_train[np.hstack(list(self.measures.values()))]
         dataset_machine = self.dataset_train[self.feature_names]
         dataset_user = self.dataset_train[self.user_input]
-        dataset_problems = self.dataset_train[self.possible_problems]
-        dataset_measures = self.dataset_train[np.hstack(list(self.measures.values()))]
-
 
         scaler = MinMaxScaler(feature_range=(0, 1))
-        if self.dropped == 0:
+        if self.dropped == 0 or type == "train":
+            # could also be solved with a loop TODO
             train_machine_scaled = scaler.fit_transform(dataset_machine)
             joblib.dump(scaler, str(self.function_folder) + '\\dataset_train_machine.gz')
             train_user_scaled = scaler.fit_transform(dataset_user)
@@ -65,13 +70,21 @@ class prepped_data:
             train_machine_scaled = scaler.transform(dataset_machine)
             scaler = joblib.load(str(self.function_folder) + '\\dataset_train_user.gz')
             train_user_scaled = scaler.transform(dataset_user)
-            scaler = joblib.load(str(self.function_folder) + '\\dataset_train_measures.gz')
-            train_measures_scaled = scaler.transform(dataset_measures)
+            if type == "test_known":
+                scaler = joblib.load(str(self.function_folder) + '\\dataset_train_measures.gz')
+                measures_scaled = scaler.transform(dataset_measures)
+        if type == "train":
+            self.X_machine, self.X_machine_split, self.X_user, self.X_user_split, y_problems, y_problems_split, self.Y_measures, self.Y_measures_split = train_test_split(
+                train_machine_scaled, train_user_scaled, dataset_problems, train_measures_scaled, test_size=0.1)
+            self.Y_problems, _ = self.hotencode(y_problems)
+            self.Y_problems_split, self.n_classes = self.hotencode(y_problems_split)
+        else:
+            self.X_machine = train_machine_scaled
+            self.X_user = train_user_scaled
+            if type == "test_known":
+                self.Y_problems = dataset_problems
+                self.Y_measures = measures_scaled
 
-        self.X_machine_train, self.X_machine_val, self.X_user_train, self.X_user_val, y_problems_train, y_problems_val, self.Y_measures_train, self.Y_measures_val= train_test_split(train_machine_scaled, train_user_scaled, dataset_problems, train_measures_scaled,  test_size=0.1)
-
-        self.Y_problems_train, _ = self.hotencode(y_problems_train)
-        self.Y_problems_val, self.n_classes = self.hotencode(y_problems_val)
 
 
         return

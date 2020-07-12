@@ -29,7 +29,11 @@ print(run_arg)
 
 function_folder = Path(__file__).parent / "saved_functions"
 fileloca_train = Path(__file__).parent / "Data/ProblemTestData.csv"
+fileloca_user = Path(__file__).parent / "Data/ProblemTestDataUser.csv"
+folder_problem_models = "models_problem"
+folder_measure_models ="modeles_measure"
 dataset_train = pd.read_csv(fileloca_train)
+dataset_user =  pd.read_csv(fileloca_user)
 possible_problems = [
     "Fan consumes too much energy",
     "Insulation insufficient",
@@ -56,41 +60,56 @@ measures:dict = dict()
 measures["Fan consumes too much energy"] = ["clean_fan", "new_fan"]
 measures["People too long in the Room"] = ["install_countdown", "school_workers"]
 
-
-data_categos = ["possible_problems", "feature_names", "user_input", "measures"]
-imp_vars = dataset_train, function_folder, possible_problems, feature_names, user_input, measures
-
+imp_vars = function_folder, possible_problems, feature_names, user_input, measures
 
 
 
 if 'create_models' in run_arg:
-    train_1 = prepped_data(*imp_vars)
-    train_1.get_data()
+    train_1 = prepped_data(dataset_train, *imp_vars)
+    train_1.get_data("train")
     save_folder = "problems"
     if 'for_problems' in run_arg:
         for model_num, problem in enumerate(possible_problems):
-            create_all_models(train_1.X_machine_train, train_1.X_machine_val, train_1.Y_problems_train[problem],
-                              train_1.Y_problems_val[problem], len(train_1.feature_names), train_1.n_classes[problem], model_num, "models_problem", 0)
+            create_all_models(train_1.X_machine, train_1.X_machine_split, train_1.Y_problems[problem],
+                              train_1.Y_problems_split[problem], len(train_1.feature_names), train_1.n_classes[problem], model_num, folder_problem_models, 0)
 
     if 'for_measures' in run_arg:
         for measure in measures:
-            train_2 = prepped_data(*imp_vars)
+            train_2 = prepped_data(dataset_train, *imp_vars)
             train_2.drop_rows(measure)
-            train_2.get_data()
+            train_2.get_data("train")
             train_2.append_user()
             index = possible_problems.index(measure)
-            create_all_models(train_2.X_machine_train, train_2.X_machine_val, train_2.Y_problems_train[measure],
-                              train_2.Y_problems_val[measure], len(train_2.feature_names), train_2.n_classes[measure], index,
-                              "modeles_measure", 1)
+            create_all_models(train_2.X_machine, train_2.X_machine_split, train_2.Y_problems[measure],
+                              train_2.Y_problems_split[measure], len(train_2.feature_names), train_2.n_classes[measure], index,
+                              folder_measure_models, 1)
+
+
+if "test" in run_arg:
+    user_1 = prepped_data(dataset_user, *imp_vars)
+    user_1.dropped = 1
+    user_1.get_data("test_known")
+
+    predictions: dict = dict()
+    for model_num, problem in enumerate(possible_problems):
+        predictions[problem] = []
+        model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}.h5'.format(folder_problem_models, model_num)
+        predictions[problem] = predict_problem(model_loca, user_1.X_machine)
+    show_user_predictions(predictions, possible_problems, 10)
+    show_predictions(predictions, possible_problems, user_1.Y_problems, 10)
+
+
+
+    pass
 
 
 
 
 elif 'generateData' in run_arg:
     # Liste mit ColdRoom Instanzen -> amount bestimmt Anzahl der generierten Daten, "mode2 ="setup" sorgt dafür, dass nur fehlerhafte daten mit maßnahmen und ohne Probleme generiert werden!" 
-    coldRooms = generateRandomColdRooms(amount=10000, csv=False, filename="testNEW", fault_share=1, object=True)
+    coldRooms = generateRandomColdRooms(amount=20, csv=False, filename="testNEW", fault_share=1, object=True)
     # Dateiname für generierte Daten
-    filename = "Data/" + "ProblemTestData" + ".csv"
+    filename = "Data/" + "ProblemTestDataUser" + ".csv"
     # DataFrame für ColdRooms mit problem
     df_ColdRoomsInclMeasures = pd.DataFrame()
 

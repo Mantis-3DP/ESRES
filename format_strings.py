@@ -40,9 +40,9 @@ def show_predictions(predictions, measure_names, Y_test, test_count):
         for m in range(0, len(measure_array)):
             measure_name_at_m = measure_names[m]
             value_at_m = int(100 * measure_values[m])
-            Y_value_at_m = Y_test[measure_names[m]][i, 1]
+            Y_value_at_m = Y_test[measure_names[m]][i]
 
-            if np.round(measure_values[m], 0) == Y_test[measure_names[m]][i, 1]:
+            if np.round(measure_values[m], 0) == Y_test[measure_names[m]][i]:
                 counter += 1
             print('{} --- {}% --- for {} --- true: {}'.format(
                 m,
