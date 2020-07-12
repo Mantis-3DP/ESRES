@@ -24,14 +24,14 @@ def create_custom_model(input_dim, output_dim, nodes, n, name, ):
                           metrics=['accuracy'])
         elif conti == 1:
             model.add(Dense(2, activation='relu'))
-            model.compile(RMSprop(lr=0.1), loss='mse',
+            model.compile(RMSprop(lr=0.001), loss='mse',
                           metrics=['mae', 'mse'])
 
         return model
 
     return create_model
 
-def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, model_number, conti):
+def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, model_number, folder, conti):
     #n_classes = 1 #Zeile muss wieder weg
     models = [create_custom_model(n_features, n_classes, 64, n=4, name='model_{}'.format(model_number))]
 
@@ -50,9 +50,9 @@ def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, mod
                   validation_data=(X_val, Y_val)
                   )
 
-        model.save(Path(__file__).parent / 'models/cold_system_{}.h5'.format(model.name))
+        model.save(Path(__file__).parent / 'models/{}/cold_system_{}.h5'.format(folder, model.name))
         ### we need a wait and confirmation of a succsesful write
-        print(Path(__file__).parent / 'models/cold_system_{}.h5 saved'.format(model.name))
+        print(Path(__file__).parent / 'models/{}/cold_system_{}.h5'.format(folder, model.name))
     return
 
 

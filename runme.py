@@ -12,6 +12,7 @@ from ColdRoom import ColdRoom
 from ColdRoom import generateRandomColdRooms
 import joblib
 import pandas as pd
+import random
 
 physical_devices = tf.config.list_physical_devices('GPU')
 try:
@@ -27,7 +28,7 @@ print(run_arg)
 
 
 function_folder = Path(__file__).parent / "saved_functions"
-fileloca_train = Path(__file__).parent / "Data/ProblemTestDataPref.csv"
+fileloca_train = Path(__file__).parent / "Data/ProblemTestData.csv"
 dataset_train = pd.read_csv(fileloca_train)
 possible_problems = [
     "Fan consumes too much energy",
@@ -49,28 +50,39 @@ feature_names = [
     "load_installed",
     ]
 user_input = [
-    "pref"
+    "new_measure_preferred"
 ]
 measures:dict = dict()
 measures["Fan consumes too much energy"] = ["clean_fan", "new_fan"]
 measures["People too long in the Room"] = ["install_countdown", "school_workers"]
 
-num_problems = len(possible_problems)
-num_features = len(feature_names)
-num_measure = len(measures["Fan consumes too much energy"])+len(measures["People too long in the Room"])
-num_user_input = len(user_input)
 
 data_categos = ["possible_problems", "feature_names", "user_input", "measures"]
+imp_vars = dataset_train, function_folder, possible_problems, feature_names, user_input, measures
 
-
-
-train_data_1 = prepped_data(dataset_train, function_folder, possible_problems, feature_names, user_input, measures, num_problems, num_features, num_measure, num_user_input)
 
 
 
 if 'create_models' in run_arg:
-    datapreprocess_train(dataset_train, function_folder, possible_problems, feature_names, user_input, measures, num_problems, num_features, num_measure, num_user_input)
-    pass
+    train_1 = prepped_data(*imp_vars)
+    train_1.get_data()
+    save_folder = "problems"
+    if 'for_problems' in run_arg:
+        for model_num, problem in enumerate(possible_problems):
+            create_all_models(train_1.X_machine_train, train_1.X_machine_val, train_1.Y_problems_train[problem],
+                              train_1.Y_problems_val[problem], len(train_1.feature_names), train_1.n_classes[problem], model_num, "models_problem", 0)
+
+    if 'for_measures' in run_arg:
+        for measure in measures:
+            train_2 = prepped_data(*imp_vars)
+            train_2.drop_rows(measure)
+            train_2.get_data()
+            train_2.append_user()
+            index = possible_problems.index(measure)
+            create_all_models(train_2.X_machine_train, train_2.X_machine_val, train_2.Y_problems_train[measure],
+                              train_2.Y_problems_val[measure], len(train_2.feature_names), train_2.n_classes[measure], index,
+                              "modeles_measure", 1)
+
 
 
 
@@ -82,30 +94,36 @@ elif 'generateData' in run_arg:
     # DataFrame für ColdRooms mit problem
     df_ColdRoomsInclMeasures = pd.DataFrame()
 
-
-
     # Schleife über alle ColdRooms in Coldroom
-    for cr in coldRooms: 
-        # DATA PREPROCESSING 
-        # sorgt dafür, dass alle problem spalten existieren und jede zelle in jeder zeile mit 0 oder 1 gefüllt ist 
-        df_temp = pd.DataFrame([cr.dataRow[:-1]], columns=feature_names)
-        temp_array = []
+    for cr in coldRooms:
+        # DATA PREPROCESSING
+        # sorgt dafür, dass alle problem spalten existieren und jede zelle in jeder zeile mit 0 oder 1 gefüllt ist
+        df_temp_features = pd.DataFrame([cr.dataRow[:-1]], columns=feature_names)  # contains features of one coldroom
+        df_temp_userInput = pd.DataFrame([random.randint(9, 11) / 10],
+                                         columns=user_input)  # contains userInput -> in diesem fall nur eine spalte mit zufalls values
+        # FUNFACT: Vielleicht sollten wir die Zufallswerte ändern...das sieht irgendwie komisch aus mit den Zahlen in der Reihenfolge...#insidejob xD
+        temp_array_problems = []
         for problem in possible_problems:
-            if problem in cr.dataRow[-1]: 
-                temp_array.append(1)
-            else: 
-                temp_array.append(0)
-        df_problems = pd.DataFrame([temp_array], columns=possible_problems)
-        df_mid = df_temp.join(df_problems)
+            if problem in cr.dataRow[-1]:
+                temp_array_problems.append(1)
+            else:
+                temp_array_problems.append(0)
+        df_problems = pd.DataFrame([temp_array_problems],
+                                   columns=possible_problems)  # contains problems of one coldroom
+        df_preMid = df_temp_features.join(
+            df_temp_userInput)  # Das kann man sicherlich auch schöner lösen, wenn dus hinter problems haben willst, dann join es einfach einen join später
+        # Falls wir das doch an einer bestimmten Stelle brauchen, kann man noch die insert Funktion bemühen, aber ich glaube so passt es
+        df_mid = df_preMid.join(df_problems)
+        cr.calculateDefaultValues()
 
-
-        # print("################ Top Problems ################")
-        # print("calculatingDefaultValues...")
-        cr.calculateDefaultValues() 
-        # print("adding Top Problems to ColdRoom-Instance... ")
-        # print("adding measure columns...")
-        #JoinDataFrames
+        # JoinDataFrames
         df_final = df_mid.join(cr.add_measure_columns())
+        if "new_fan" in df_final.columns:  # KeyError prevention weil die spalten noch nicht existieren -> kann man auch noch besser machen TODO
+            df_final.at[0, "new_fan"] = (df_final.at[0, "new_fan"] * df_final.at[0, "new_measure_preferred"])
+        elif "install_countdown" in df_final.columns:
+            df_final.at[0, "install_countdown"] = (
+                        df_final.at[0, "install_countdown"] * df_final.at[0, "new_measure_preferred"])
+
         df_ColdRoomsInclMeasures = pd.concat([df_ColdRoomsInclMeasures, df_final], ignore_index=True)
         df_ColdRoomsInclMeasures = df_ColdRoomsInclMeasures.fillna(0)
 
