@@ -1,5 +1,5 @@
 from create_model import create_all_models
-from data_processing import datapreprocess_train, datapreprocess_test, datapreprocess_user, datapreprocess_calc
+from data_processing import  datapreprocess_test, datapreprocess_user
 from format_strings import show_top_predictions, show_predictions, show_user_predictions
 from predict_problems import predict_problem
 from pathlib import Path
@@ -86,32 +86,10 @@ if 'create_models' in run_arg:
         pass
 
 
-# faulty needs an update, doesnt do what i have hoped
-if 'user_room' in run_arg and 'similar' in run_arg:
-    k = []
-    problem_values = []
-    for problem in problem_names:
-        problem_values.append(predictions[problem][0])
-    problem_array = np.array(problem_values)
-    for m in range(0, len(problem_array)):
-        problem_name_at_m = problem_names[m] # name of problem
-        value_at_m = int(100 * problem_values[m]) # Prozent bei der jeweiligen Maßnahme
-        if value_at_m > 60:
-            k.append(m)
-    print(k)
-    _, _, X_train, _, Y_train, _, _, _, X, y_values = datapreprocess_calc(fileloca_train, num_problems, function_folder)
-
-    for i in k:
-        print(i)
-        positiov = np.where(y_values[:, 7] == 1)[0]
-        midX = X[positiov, 6].sum()/len(positiov)
-        print(midX)
-
-
 
 elif 'generateData' in run_arg:
     # Liste mit ColdRoom Instanzen -> amount bestimmt Anzahl der generierten Daten, "mode2 ="setup" sorgt dafür, dass nur fehlerhafte daten mit maßnahmen und ohne Probleme generiert werden!" 
-    coldRooms = generateRandomColdRooms(amount=10, csv=False, filename="testNEW", fault_share=1, object=True)
+    coldRooms = generateRandomColdRooms(amount=10000, csv=False, filename="testNEW", fault_share=1, object=True)
     # Dateiname für generierte Daten
     filename = "Data/" + "ProblemTestData" + ".csv"
     # DataFrame für ColdRooms mit problem
