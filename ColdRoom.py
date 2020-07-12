@@ -68,8 +68,6 @@ class ColdRoom:
         self.dataRow = [] #needed for later
         self.mode = kwargs.get("mode")
         self.problems = []
-        if "mode2" in kwargs:
-            self.mode2 = kwargs["mode2"]
 
 
 
@@ -79,29 +77,29 @@ class ColdRoom:
         elif self.mode == "user":
             self.defaultRoom = False
         elif self.mode == "problem":
-            problemOptions = kwargs.get("problemOptions")
+            self.problemOptions = kwargs.get("problemOptions")
             self.defaultRoom = False #sets this Room as not default, kann später dazu genutzt werden um "geheilte Räume" wieder zum lerenne zu verwenden
-            if problemOptions["transmission_problem"]:   
+            if self.problemOptions["transmission_problem"]:   
                 self.u_value = random.randint(3*100, 5*100)/1000
                 self.problems.append("Insulation insufficient")
 
-            if problemOptions["people_problem_1"]:                                                                                      
+            if self.problemOptions["people_problem_1"]:                                                                                      
                 self.n_person = random.randint(4,6)
                 self.problems.append("To many people in the Room")
     
-            if problemOptions["people_problem_2"]:
+            if self.problemOptions["people_problem_2"]:
                 self.t_person = random.randint(6*10, 9*10)/10    
                 self.problems.append("People too long in the Room")
 
-            if problemOptions["light_problem_1"]:
+            if self.problemOptions["light_problem_1"]:
                 self.load_light_electrical = 240 / 108 * self.volume * (random.randint(110, 175)/100)
                 self.problems.append("Light consumes too much energy")
 
-            if problemOptions["light_problem_2"]:
+            if self.problemOptions["light_problem_2"]:
                 self.t_light = self.t_person + random.randint(1*10, 5*10)/10
                 self.problems.append("Light is on for too long")
 
-            if problemOptions["fan_problem"]: # KANN MAN GGFLS AUCH NOCH IN LEISTUNG UND ZEIT AUFTEILEN !!
+            if self.problemOptions["fan_problem"]: # KANN MAN GGFLS AUCH NOCH IN LEISTUNG UND ZEIT AUFTEILEN !!
                 self.load_fan_electrical = 210 / 108 * self.volume * (random.randint(110,175)/100)
                 self.t_fan = random.randint(16*10,18*10)/10
                 self.problems.append("Fan consumes too much energy")
@@ -159,8 +157,11 @@ class ColdRoom:
         if self.mode == "default": 
             self.load_installed = self.load_total * 1.1
         elif self.mode == "problem": 
-            self.load_installed = self.load_total * random.randint(12,20)/10
-            self.problems.append("Installed Load too high")
+            if self.problemOptions["load_installed_problem"]:
+                self.load_installed = self.load_total * random.randint(12,20)/10
+                self.problems.append("Installed Load too high")
+            else:
+                self.load_installed = self.load_total * 1.1
 
 
     def createDataRow(self):
@@ -172,50 +173,13 @@ class ColdRoom:
     def createDataFrame(self):
         dataRow = self.createDataRow()
         df_temp = pd.DataFrame([dataRow], columns=["load_transmission", "load_people", "n_person", "load_light", "load_fan", "load_total", "load_installed", "problems"])
-        if self.mode2 == "setup":
-            df_temp = df_temp.drop(['problems'], axis=1)
-            return df_temp
-        else:
-            df_ENC = df_temp.join(pd.DataFrame(mlb.fit_transform(df_temp.pop("problems")), columns = mlb.classes_, index=df_temp.index))
-            return df_ENC
-
-
-
-
-    problemParameters = {"Fan consumes too much energy" : "load_fan_electrical",
-                        "Installed Load too high": "load_installed",
-                        "Insulation insufficient": "u_value",
-                        "Light consumes too much energy": "load_light_electrical",
-                        "Light is on for too long": "t_light",
-                        "People too long in the Room": "t_person",
-                        "To many people in the Room": "n_person",
-                        "none" : ""
-    }
-
-    #Weiteres Dictionary mit Zuordnung problems -> calculateLoad Functions
-
-
-    loadFunctions = {
-        "load_fan_electrical" : calculate_load_machine,
-        # "load_installed" : , Sonderfall -> Lösen
-        "u_value" : calculate_load_transmission,
-        "load_light_electrical" : calculate_load_light,
-        "t_light" : calculate_load_light,
-        "t_person" : calculate_load_people,
-        "n_person" : calculate_load_people 
-    }
-
+        df_ENC = df_temp.join(pd.DataFrame(mlb.fit_transform(df_temp.pop("problems")), columns = mlb.classes_, index=df_temp.index))
+        return df_ENC
 
     
     def calculatebestCaseLoads(self):
         totalSavings = 0.0 
         for problem in self.problems:
-            # print(problem)
-            # print(self.problemParameters[problem])
-            # param_str = "self.{}_default".format((self.problemParameters[problem]))  # für Problem verantwortlichzer Parameter
-            # param = eval(param_str)
-            # print(param)
-            # self.loadFunctions[param](self)
             if problem == "Fan consumes too much energy":
                 # Calculate Diff
                 diff = self.load_fan - (self.calculate_load_machine(self.load_fan_electrical_default,1,self.t_fan_default) / 24000)
@@ -347,7 +311,6 @@ class ColdRoom:
 ############## DATA GENERATION ##########
 
 def generateRandomColdRooms(*args, **kwargs):
-    mode2 = kwargs["mode2"]
     amount = kwargs["amount"]
     if "fault_share" in kwargs: fault_share = kwargs["fault_share"]
     else: fault_share = 1
@@ -362,27 +325,18 @@ def generateRandomColdRooms(*args, **kwargs):
                     "fan_problem": False, 
                     "load_installed_problem": False}
         x = random.randint(0, fault_share) # ANTEIL DER MIT FEHLER GENERIERTEN DATEN LÄSST SICH ÜBER ZWEITE ZAHL STEUERN bei 1 anteil = 50% das geht auch besser
-        if mode2 == "setup": x = 1
         if x == 0:
             #generate Random DEFAULT ColdRoom
-            if "user_params" in kwargs: user_params = kwargs["user_params"]
-            else: user_params = {"mode": "default"}
-            if mode2 == "setup":
-                cr = ColdRoom(**user_params, mode2=mode2)
-            else: 
-                cr = ColdRoom(**user_params)
+            cr = ColdRoom(mode = "default")
             coldRooms.append(cr)
             dataRows.append(cr.createDataRow())
         else:
-            amount_problems = random.randint(1, len(problemOptions)) #Hiermit kann man beeinflussen wie viele Fehler maximal gemacht werden können
+            amount_problems = random.randint(1, int(len(problemOptions)/2) ) #Hiermit kann man beeinflussen wie viele Fehler maximal gemacht werden können
             chosen_problems = random.sample(list(problemOptions.keys()), k=amount_problems)
             for problems in chosen_problems:
                 problemOptions[problems] = True
             # generate Random FAULTY ColdRoom
-            if mode2 == "setup":
-                cr = ColdRoom(mode="problem", problemOptions=problemOptions, mode2=mode2)
-            else: 
-                cr = ColdRoom(mode="problem", problemOptions=problemOptions)
+            cr = ColdRoom(mode="problem", problemOptions=problemOptions)
             coldRooms.append(cr)
             dataRows.append(cr.createDataRow())
 
@@ -442,3 +396,12 @@ problemOptions = {"transmission_problem": True,
 user_params['problemOptions'] = problemOptions
 generateRandomColdRooms(amount=1, csv=True, filename="UserFaulty", fault_share=0, user_params=user_params)
 '''
+
+# crDEBUG = generateRandomColdRooms(amount=30, csv=True, filename="testNEW", object=True)
+# print(crDEBUG[0].problems)
+# print(crDEBUG[0].mode)
+# print(crDEBUG[0].problemOptions)
+# print(crDEBUG[0].createDataRow())
+# print(crDEBUG[0].createDataFrame())
+# # print(crDEBUG[1].problems)
+# # print(crDEBUG[2].problems)
