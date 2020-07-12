@@ -12,6 +12,7 @@ from ColdRoom import ColdRoom
 from ColdRoom import generateRandomColdRooms
 import joblib
 import pandas as pd
+import random
 
 physical_devices = tf.config.list_physical_devices('GPU')
 try:
@@ -53,7 +54,7 @@ feature_names = [
     ]
 
 user_input = [
-    "preference_investment"
+    "new_measure_preferred"
 ]
 
 
@@ -115,7 +116,7 @@ if 'user_room' in run_arg and 'similar' in run_arg:
 
 elif 'generateData' in run_arg:
     # Liste mit ColdRoom Instanzen -> amount bestimmt Anzahl der generierten Daten, "mode2 ="setup" sorgt dafür, dass nur fehlerhafte daten mit maßnahmen und ohne Probleme generiert werden!" 
-    coldRooms = generateRandomColdRooms(amount=1000, csv=False, filename="testNEW", fault_share=1, object=True)
+    coldRooms = generateRandomColdRooms(amount=100, csv=False, filename="testNEW", fault_share=1, object=True)
     # Dateiname für generierte Daten
     filename = "Data/" + "ProblemTestData" + ".csv"
     # DataFrame für ColdRooms mit problem
@@ -127,26 +128,31 @@ elif 'generateData' in run_arg:
     for cr in coldRooms: 
         # DATA PREPROCESSING 
         # sorgt dafür, dass alle problem spalten existieren und jede zelle in jeder zeile mit 0 oder 1 gefüllt ist 
-        df_temp = pd.DataFrame([cr.dataRow[:-1]], columns=feature_names)
-        temp_array = []
+        df_temp_features = pd.DataFrame([cr.dataRow[:-1]], columns=feature_names) #contains features of one coldroom
+        df_temp_userInput = pd.DataFrame([random.randint(9,11)/10], columns=user_input) #contains userInput -> in diesem fall nur eine spalte mit zufalls values
+        #FUNFACT: Vielleicht sollten wir die Zufallswerte ändern...das sieht irgendwie komisch aus mit den Zahlen in der Reihenfolge...#insidejob xD
+        temp_array_problems = []
         for problem in possible_problems:
             if problem in cr.dataRow[-1]: 
-                temp_array.append(1)
+                temp_array_problems.append(1)
             else: 
-                temp_array.append(0)
-        df_problems = pd.DataFrame([temp_array], columns=possible_problems)
-        df_mid = df_temp.join(df_problems)
-
-
-        # print("################ Top Problems ################")
-        # print("calculatingDefaultValues...")
+                temp_array_problems.append(0)
+        df_problems = pd.DataFrame([temp_array_problems], columns=possible_problems) #contains problems of one coldroom 
+        df_preMid = df_temp_features.join(df_temp_userInput) # Das kann man sicherlich auch schöner lösen, wenn dus hinter problems haben willst, dann join es einfach einen join später
+        # Falls wir das doch an einer bestimmten Stelle brauchen, kann man noch die insert Funktion bemühen, aber ich glaube so passt es 
+        df_mid = df_preMid.join(df_problems)
         cr.calculateDefaultValues() 
-        # print("adding Top Problems to ColdRoom-Instance... ")
-        # print("adding measure columns...")
+
         #JoinDataFrames
         df_final = df_mid.join(cr.add_measure_columns())
+        if "new_fan" in df_final.columns:   #KeyError prevention weil die spalten noch nicht existieren -> kann man auch noch besser machen TODO
+            df_final.at[0, "new_fan"] = (df_final.at[0, "new_fan"]*df_final.at[0, "new_measure_preferred"])
+        elif "install_countdown" in df_final.columns:
+            df_final.at[0, "install_countdown"] = (df_final.at[0, "install_countdown"]*df_final.at[0, "new_measure_preferred"])
+
         df_ColdRoomsInclMeasures = pd.concat([df_ColdRoomsInclMeasures, df_final], ignore_index=True)
         df_ColdRoomsInclMeasures = df_ColdRoomsInclMeasures.fillna(0)
+        
 
     if 'csv' in run_arg:
         # print(df_ColdRoomsInclMeasures)
