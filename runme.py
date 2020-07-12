@@ -1,5 +1,5 @@
 from create_model import create_all_models
-from data_processing import  datapreprocess_test, datapreprocess_user
+from data_processing import prepped_data
 from format_strings import show_top_predictions, show_predictions, show_user_predictions
 from predict_problems import predict_problem
 from pathlib import Path
@@ -27,11 +27,8 @@ print(run_arg)
 
 
 function_folder = Path(__file__).parent / "saved_functions"
-fileloca_train = Path(__file__).parent / "Data/ProblemTestData.csv"
-fileloca_test = Path(__file__).parent / "Data/TestData.csv"
-fileloca_user = Path(__file__).parent / "Data/UserFaulty.csv"
-fileloca_problem = Path(__file__).parent / "Data/ProblemTestData.csv"
-
+fileloca_train = Path(__file__).parent / "Data/ProblemTestDataPref.csv"
+dataset_train = pd.read_csv(fileloca_train)
 possible_problems = [
     "Fan consumes too much energy",
     "Insulation insufficient",
@@ -51,39 +48,29 @@ feature_names = [
     "load_total",
     "load_installed",
     ]
-
+user_input = [
+    "pref"
+]
+measures:dict = dict()
+measures["Fan consumes too much energy"] = ["clean_fan", "new_fan"]
+measures["People too long in the Room"] = ["install_countdown", "school_workers"]
 
 num_problems = len(possible_problems)
 num_features = len(feature_names)
-num_measure = 4
+num_measure = len(measures["Fan consumes too much energy"])+len(measures["People too long in the Room"])
+num_user_input = len(user_input)
+
+data_categos = ["possible_problems", "feature_names", "user_input", "measures"]
+
+
+
+train_data_1 = prepped_data(dataset_train, function_folder, possible_problems, feature_names, user_input, measures, num_problems, num_features, num_measure, num_user_input)
+
 
 
 if 'create_models' in run_arg:
-    # create models
-    feature_names, problem_names, X_machine_train, X_machine_val, X_user_train, X_user_val, Y_problem_train, Y_problem_val, Y_measures_train, Y_measures_val = datapreprocess_train(
-        fileloca_train,
-        num_problems,
-        num_features,
-        num_measure,
-        function_folder
-    )
-
-    if 'all_models' in run_arg:
-        for model_num, problem in enumerate(problem_names):
-            create_all_models(X_train, X_val, Y_train[problem], Y_val[problem], n_features, n_classes[problem], model_num)
-    else:
-        new_list = []
-        for value in run_arg:
-            try:
-                new_list.append(int(value))
-            except ValueError:
-                continue
-        for i in new_list:
-            problem = problem_names[i]
-            model_num = i
-            create_all_models(X_train, X_val, Y_train[problem], Y_val[problem], n_features, n_classes[problem], model_num)
-    if 'measure_models' in run_arg:
-        pass
+    datapreprocess_train(dataset_train, function_folder, possible_problems, feature_names, user_input, measures, num_problems, num_features, num_measure, num_user_input)
+    pass
 
 
 
