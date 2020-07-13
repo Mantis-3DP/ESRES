@@ -61,9 +61,11 @@ possible_measures["Fan consumes too much energy"] = ["clean_fan", "new_fan"]
 possible_measures["People too long in the Room"] = ["install_countdown", "school_workers"]
 
 imp_vars = function_folder, possible_problems, feature_names, user_input, possible_measures
+
 for measure in possible_measures.values():
     for item in measure:
         print("Max value element : {} Min value element : {}".format(max(dataset_train[item]),  min(dataset_train[item])))
+
 
 if 'create_models' in run_arg:
     train_1 = prepped_data(dataset_train, *imp_vars)
