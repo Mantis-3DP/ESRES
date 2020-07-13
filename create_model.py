@@ -31,15 +31,20 @@ def create_custom_model(input_dim, output_dim, nodes, n, name, ):
 
     return create_model
 
-def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, model_number, folder, conti):
+def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, model_number, folder, **kwargs ):
     #n_classes = 1 #Zeile muss wieder weg
     models = [create_custom_model(n_features, n_classes, 64, n=4, name='model_{}'.format(model_number))]
+    if folder == "models_problem":
+        measure = 0
+    else:
+        measure = 1
+        measure_num = kwargs["measure_num"]
 
     for create_model in models:
-        create_model(conti).summary()
+        create_model(measure).summary()
 
     for create_model in models:
-        model = create_model(conti)
+        model = create_model(measure)
         print('Model name:', model.name)
         # history_callback =\
 
@@ -50,9 +55,13 @@ def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, mod
                   validation_data=(X_val, Y_val)
                   )
 
-        model.save(Path(__file__).parent / 'models/{}/cold_system_{}.h5'.format(folder, model.name))
-        ### we need a wait and confirmation of a succsesful write
-        print(Path(__file__).parent / 'models/{}/cold_system_{}.h5'.format(folder, model.name))
+        if folder == "models_problem":
+            model.save(Path(__file__).parent / 'models/{}/cold_system_{}.h5'.format(folder, model.name))
+            print(Path(__file__).parent / 'models/{}/cold_system_{}.h5'.format(folder, model.name))
+        else:
+            model.save(Path(__file__).parent / 'models/{}/cold_system_{}_{}.h5'.format(folder, model.name, measure_num))
+            print(Path(__file__).parent / 'models/{}/cold_system_{}_{}.h5'.format(folder, model.name, measure_num))
+
     return
 
 

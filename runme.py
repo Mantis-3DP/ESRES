@@ -61,8 +61,9 @@ possible_measures["Fan consumes too much energy"] = ["clean_fan", "new_fan"]
 possible_measures["People too long in the Room"] = ["install_countdown", "school_workers"]
 
 imp_vars = function_folder, possible_problems, feature_names, user_input, possible_measures
-
-
+for measure in possible_measures.values():
+    for item in measure:
+        print("Max value element : {} Min value element : {}".format(max(dataset_train[item]),  min(dataset_train[item])))
 
 if 'create_models' in run_arg:
     train_1 = prepped_data(dataset_train, *imp_vars)
@@ -74,15 +75,17 @@ if 'create_models' in run_arg:
                               train_1.Y_problems_split[problem], len(train_1.feature_names), train_1.n_classes[problem], model_num, folder_problem_models, 0)
 
     if 'for_measures' in run_arg:
-        for measure in possible_measures:
+        for problem in possible_measures:
             train_2 = prepped_data(dataset_train, *imp_vars)
-            train_2.drop_rows(measure)
+            train_2.drop_rows(problem)
             train_2.get_data("train")
             train_2.append_user()
-            index = possible_problems.index(measure)
-            create_all_models(train_2.X_machine, train_2.X_machine_split, train_2.Y_problems[measure],
-                              train_2.Y_problems_split[measure], len(train_2.feature_names), train_2.n_classes[measure], index,
-                              folder_measure_models, 1)
+            index_prob = possible_problems.index(problem)
+            for measure_num, measure in enumerate(possible_measures[problem]):
+                print(measure_num, measure)
+                create_all_models(train_2.X_machine, train_2.X_machine_split, train_2.Y_measures[measure],
+                              train_2.Y_measures_split[measure], len(train_2.feature_names), train_2.n_classes[measure], index_prob,
+                              folder_measure_models, measure_num=measure_num)
 
 
 if "predict" in run_arg:
@@ -115,9 +118,9 @@ if "predict" in run_arg:
                 for array_loc, measure_name in enumerate(possible_measures[problem]):
                     predictions[measure_name][user] = ein_array[0, array_loc]
 
+    print(predictions)
 
-
-elif 'generateData' in run_arg:
+elif 'generate_data' in run_arg:
     # Liste mit ColdRoom Instanzen -> amount bestimmt Anzahl der generierten Daten, "mode2 ="setup" sorgt dafür, dass nur fehlerhafte daten mit maßnahmen und ohne Probleme generiert werden!" 
     coldRooms = generateRandomColdRooms(amount=20, csv=False, filename="testNEW", fault_share=1, object=True)
     # Dateiname für generierte Daten
