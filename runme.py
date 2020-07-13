@@ -108,22 +108,12 @@ if "predict" in run_arg:
         print("results for user {}".format(user))
         for problem in possible_measures: # probelm = "Fan consumes too much
             model_index = possible_problems.index(problem) # 0 4
-            print(model_index)
             if predictions[problem][user] > 0.5:
                 print(predictions[problem][user])
                 model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}.h5'.format(folder_measure_models, model_index)
                 ein_array = predict_problem(model_loca, [list(user_1.X_machine[user])], 1)
-                print(ein_array)
                 for array_loc, measure_name in enumerate(possible_measures[problem]):
                     predictions[measure_name][user] = ein_array[0, array_loc]
-
-                pass
-    print("end")
-
-
-
-    pass
-
 
 
 
