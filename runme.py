@@ -68,13 +68,13 @@ for measure in possible_measures.values():
 
 
 if 'create_models' in run_arg:
-    train_1 = prepped_data(dataset_train, *imp_vars)
-    train_1.get_data("train")
-    save_folder = "problems"
+
     if 'for_problems' in run_arg:
+        train_1 = prepped_data(dataset_train, *imp_vars)
+        train_1.get_data("train")
         for model_num, problem in enumerate(possible_problems):
             create_all_models(train_1.X_machine, train_1.X_machine_split, train_1.Y_problems[problem],
-                              train_1.Y_problems_split[problem], len(train_1.feature_names), train_1.n_classes_probs[problem], model_num, folder_problem_models, 0)
+                              train_1.Y_problems_split[problem], len(train_1.feature_names), train_1.n_classes_probs[problem], model_num, folder_problem_models)
 
     if 'for_measures' in run_arg:
         for problem in possible_measures:
@@ -84,7 +84,6 @@ if 'create_models' in run_arg:
             train_2.append_user()
             index_prob = possible_problems.index(problem)
             for measure_num, measure in enumerate(possible_measures[problem]):
-                print(measure_num, measure)
                 create_all_models(train_2.X_machine, train_2.X_machine_split, train_2.Y_measures[measure],
                               train_2.Y_measures_split[measure], len(train_2.feature_names), 1, index_prob,
                               folder_measure_models, measure_num=measure_num)
@@ -110,6 +109,7 @@ if "predict" in run_arg:
     for user, row in enumerate(user_1.X_machine):
         print("results for user {}".format(user))
         for problem in possible_measures: # probelm = "Fan consumes too much
+            print(problem)
             model_index = possible_problems.index(problem) # 0 4
             if predictions[problem][user] > 0.5:
                 print(predictions[problem][user])
@@ -118,12 +118,14 @@ if "predict" in run_arg:
                     ein_array = predict_problem(model_loca, [list(user_1.X_machine[user])], 1)
 
                     predictions[measure_name][user] = ein_array
-    predictions = user_1.invers_scal(predictions)
 
+
+    predictions = user_1.invers_scal(predictions)
+    print("i")
 
 elif 'generate_data' in run_arg:
     # Liste mit ColdRoom Instanzen -> amount bestimmt Anzahl der generierten Daten, "mode2 ="setup" sorgt dafür, dass nur fehlerhafte daten mit maßnahmen und ohne Probleme generiert werden!" 
-    coldRooms = generateRandomColdRooms(amount=20, csv=False, filename="testNEW", fault_share=1, object=True)
+    coldRooms = generateRandomColdRooms(amount=3, csv=False, filename="testNEW", fault_share=1, object=True)
     # Dateiname für generierte Daten
     filename = "Data/" + "ProblemTestDataUser" + ".csv"
     # DataFrame für ColdRooms mit problem
