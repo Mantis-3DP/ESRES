@@ -56,11 +56,11 @@ feature_names = [
 user_input = [
     "new_measure_preferred"
 ]
-measures:dict = dict()
-measures["Fan consumes too much energy"] = ["clean_fan", "new_fan"]
-measures["People too long in the Room"] = ["install_countdown", "school_workers"]
+possible_measures:dict = dict()
+possible_measures["Fan consumes too much energy"] = ["clean_fan", "new_fan"]
+possible_measures["People too long in the Room"] = ["install_countdown", "school_workers"]
 
-imp_vars = function_folder, possible_problems, feature_names, user_input, measures
+imp_vars = function_folder, possible_problems, feature_names, user_input, possible_measures
 
 
 
@@ -74,7 +74,7 @@ if 'create_models' in run_arg:
                               train_1.Y_problems_split[problem], len(train_1.feature_names), train_1.n_classes[problem], model_num, folder_problem_models, 0)
 
     if 'for_measures' in run_arg:
-        for measure in measures:
+        for measure in possible_measures:
             train_2 = prepped_data(dataset_train, *imp_vars)
             train_2.drop_rows(measure)
             train_2.get_data("train")
@@ -85,7 +85,7 @@ if 'create_models' in run_arg:
                               folder_measure_models, 1)
 
 
-if "test" in run_arg:
+if "predict" in run_arg:
     user_1 = prepped_data(dataset_user, *imp_vars)
     user_1.dropped = 1
     user_1.get_data("test_known")
@@ -94,9 +94,31 @@ if "test" in run_arg:
     for model_num, problem in enumerate(possible_problems):
         predictions[problem] = []
         model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}.h5'.format(folder_problem_models, model_num)
-        predictions[problem] = predict_problem(model_loca, user_1.X_machine)
+        predictions[problem] = predict_problem(model_loca, user_1.X_machine, 0)
     show_user_predictions(predictions, possible_problems, 10)
     show_predictions(predictions, possible_problems, user_1.Y_problems, 10)
+
+    user_1.append_user()
+
+    for measure in possible_measures.values():
+        for item in measure:
+            predictions[item] = np.zeros(len(user_1.X_machine))
+    ein_array = []
+    for user, row in enumerate(user_1.X_machine):
+        print("results for user {}".format(user))
+        for problem in possible_measures: # probelm = "Fan consumes too much
+            model_index = possible_problems.index(problem) # 0 4
+            print(model_index)
+            if predictions[problem][user] > 0.5:
+                print(predictions[problem][user])
+                model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}.h5'.format(folder_measure_models, model_index)
+                ein_array = predict_problem(model_loca, [list(user_1.X_machine[user])], 1)
+                print(ein_array)
+                for array_loc, measure_name in enumerate(possible_measures[problem]):
+                    predictions[measure_name][user] = ein_array[0, array_loc]
+
+                pass
+    print("end")
 
 
 

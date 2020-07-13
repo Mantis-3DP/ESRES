@@ -16,7 +16,7 @@ class prepped_data:
         self.user_input = user_input
         self.measures = measures
         self.dropped = 0
-
+        self.data_splitted = 0
 
     def drop_rows(self, chosen_problem):
         # removes the Datarows in which a problem is not present
@@ -41,9 +41,9 @@ class prepped_data:
 
     def append_user(self):
         self.X_machine = np.hstack((self.X_machine, self.X_user))
-        self.X_machine_split = np.hstack((self.X_machine_split, self.X_user_split))
         self.feature_names = np.hstack((self.feature_names, self.user_input))
-
+        if self.data_splitted == 1:
+            self.X_machine_split = np.hstack((self.X_machine_split, self.X_user_split))
 
 
     def get_data(self, type):
@@ -78,6 +78,7 @@ class prepped_data:
                 train_machine_scaled, train_user_scaled, dataset_problems, train_measures_scaled, test_size=0.1)
             self.Y_problems, _ = self.hotencode(y_problems)
             self.Y_problems_split, self.n_classes = self.hotencode(y_problems_split)
+            self.data_splitted = 1
         else:
             self.X_machine = train_machine_scaled
             self.X_user = train_user_scaled
