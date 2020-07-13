@@ -291,19 +291,7 @@ class ColdRoom:
         # print(measure_datarow)
         # print(measure_columns)
         df_measures = pd.DataFrame([measure_datarow], columns=measure_columns)
-        return df_measures     
-
-                
-                
-            
-    
-
-     
-
-
-
-
-
+        return df_measures
 
 
 ############## DATA GENERATION ##########

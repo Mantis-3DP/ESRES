@@ -1,16 +1,12 @@
 from create_model import create_all_models
 from data_processing import prepped_data
-from format_strings import show_top_predictions, show_predictions, show_user_predictions
+from format_strings import show_user_predictions
 from predict_problems import predict_problem
 from pathlib import Path
 import sys
-import shap
-from tensorflow import keras
 import tensorflow as tf
 import numpy as np
-from ColdRoom import ColdRoom
 from ColdRoom import generateRandomColdRooms
-import joblib
 import pandas as pd
 import random
 
