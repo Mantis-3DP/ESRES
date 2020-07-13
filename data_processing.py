@@ -49,46 +49,68 @@ class prepped_data:
     def get_data(self, type):
         # type asks if data is used for training or testing w/ unknown Y or testing w/ known Y
         if type == "train":
-            self.dataset_train = shuffle(self.dataset_train)
+            #self.dataset_train = shuffle(self.dataset_train)
+            pass
         if type == "test_known" or type == "train":
             dataset_problems = self.dataset_train[self.possible_problems]
-            dataset_measures = self.dataset_train[np.hstack(list(self.measures.values()))]
+            self.dataset_measures = self.dataset_train[np.hstack(list(self.measures.values()))]
         dataset_machine = self.dataset_train[self.feature_names]
         dataset_user = self.dataset_train[self.user_input]
 
         scaler = MinMaxScaler(feature_range=(0, 1))
-        if self.dropped == 0 or type == "train":
+        if self.dropped == 0 and type == "train":
             # could also be solved with a loop TODO
-            train_machine_scaled = scaler.fit_transform(dataset_machine)
+            machine_scaled = scaler.fit_transform(dataset_machine)
             joblib.dump(scaler, str(self.function_folder) + '\\dataset_train_machine.gz')
-            train_user_scaled = scaler.fit_transform(dataset_user)
+            user_scaled = scaler.fit_transform(dataset_user)
             joblib.dump(scaler, str(self.function_folder) + '\\dataset_train_user.gz')
-            train_measures_scaled = scaler.fit_transform(dataset_measures)
+            measures_scaled = scaler.fit_transform(self.dataset_measures)
             joblib.dump(scaler, str(self.function_folder) + '\\dataset_train_measures.gz')
         else:
             scaler = joblib.load(str(self.function_folder) + '\\dataset_train_machine.gz')
-            train_machine_scaled = scaler.transform(dataset_machine)
+            machine_scaled = scaler.transform(dataset_machine)
             scaler = joblib.load(str(self.function_folder) + '\\dataset_train_user.gz')
-            train_user_scaled = scaler.transform(dataset_user)
-            if type == "test_known":
+            user_scaled = scaler.transform(dataset_user)
+            if type == "test_known" or type == "train":
                 scaler = joblib.load(str(self.function_folder) + '\\dataset_train_measures.gz')
-                measures_scaled = scaler.transform(dataset_measures)
+                measures_scaled = scaler.transform(self.dataset_measures)
         if type == "train":
             self.X_machine, self.X_machine_split, self.X_user, self.X_user_split, y_problems, y_problems_split, self.Y_measures, self.Y_measures_split = train_test_split(
-                train_machine_scaled, train_user_scaled, dataset_problems, train_measures_scaled, test_size=0.1)
+                machine_scaled, user_scaled, dataset_problems, measures_scaled, test_size=0.1)
             self.Y_problems, _ = self.hotencode(y_problems)
-            self.Y_problems_split, self.n_classes = self.hotencode(y_problems_split)
+            self.Y_problems_split, self.n_classes_probs = self.hotencode(y_problems_split)
+            self.n_classes_measures = 1
             self.data_splitted = 1
+
+            # add collumn names back
+            self.Y_measures_split = pd.DataFrame(data=self.Y_measures_split, columns=list(self.dataset_measures.columns))
+
         else:
-            self.X_machine = train_machine_scaled
-            self.X_user = train_user_scaled
+            self.X_machine = machine_scaled
+            self.X_user = user_scaled
             if type == "test_known":
                 self.Y_problems = dataset_problems
                 self.Y_measures = measures_scaled
-
+        self.Y_measures = pd.DataFrame(data=self.Y_measures, columns=list(self.dataset_measures.columns))
 
 
         return
+
+
+    def invers_scal(self, predictions):
+        scaled_predictions = pd.DataFrame(columns=self.dataset_measures.columns)
+        for measure in self.dataset_measures.columns:
+            scaled_predictions[measure] = predictions[measure]
+        scaler = joblib.load(str(self.function_folder) + '\\dataset_train_measures.gz')
+        scaled_predictions = scaler.inverse_transform(scaled_predictions)
+        scaled_predictions = pd.DataFrame(data=scaled_predictions, columns=self.dataset_measures.columns)
+        for measure in self.dataset_measures.columns:
+             predictions[measure] = np.array(scaled_predictions[measure])
+
+        return predictions
+
+
+
 
 
 
