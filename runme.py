@@ -91,36 +91,37 @@ if 'create_models' in run_arg:
 
 
 if "predict" in run_arg:
-    user_1 = prepped_data(dataset_user, *imp_vars)
-    user_1.dropped = 1
-    user_1.get_data("test_known")
+    all_users = prepped_data(dataset_user, *imp_vars)
+    all_users.dropped = 1
+    all_users.get_data("test_known")
 
-    predictions: dict = dict()
+    all_users_predictions: dict = dict()
     for model_num, problem in enumerate(possible_problems):
-        predictions[problem] = []
+        all_users_predictions[problem] = []
         model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}.h5'.format(folder_problem_models, model_num)
-        predictions[problem] = predict_problem(model_loca, user_1.X_machine, 0)
-    show_user_predictions(predictions, possible_problems, 10)
-    show_predictions(predictions, possible_problems, user_1.Y_problems, 10)
+        all_users_predictions[problem] = predict_problem(model_loca, all_users.X_machine, 0) 
+    # show_predictions(all_users_predictions, possible_problems, all_users.Y_problems, 10)
 
-    user_1.append_user()
+    all_users.append_user()
 
     for measure in possible_measures.values():
         for item in measure:
-            predictions[item] = np.zeros(len(user_1.X_machine))
+            all_users_predictions[item] = np.zeros(len(all_users.X_machine))
     ein_array = []
-    for user, row in enumerate(user_1.X_machine):
-        print("results for user {}".format(user))
+    for user, row in enumerate(all_users.X_machine):
+        # print("results for user {}".format(user))
         for problem in possible_measures: # probelm = "Fan consumes too much
             model_index = possible_problems.index(problem) # 0 4
-            if predictions[problem][user] > 0.5:
-                print(predictions[problem][user])
+            if all_users_predictions[problem][user] > 0.5:
+                # print(all_users_predictions[problem][user])
                 model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}.h5'.format(folder_measure_models, model_index)
-                ein_array = predict_problem(model_loca, [list(user_1.X_machine[user])], 1)
+                ein_array = predict_problem(model_loca, [list(all_users.X_machine[user])], 1)
                 for array_loc, measure_name in enumerate(possible_measures[problem]):
-                    predictions[measure_name][user] = ein_array[0, array_loc]
+                    all_users_predictions[measure_name][user] = ein_array[0, array_loc]
 
-    print(predictions)
+    print("##############################")
+    show_user_predictions(all_users_predictions, possible_problems, possible_measures, len(all_users.X_machine))
+
 
 elif 'generate_data' in run_arg:
     # Liste mit ColdRoom Instanzen -> amount bestimmt Anzahl der generierten Daten, "mode2 ="setup" sorgt dafür, dass nur fehlerhafte daten mit maßnahmen und ohne Probleme generiert werden!" 
