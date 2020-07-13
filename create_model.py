@@ -23,7 +23,7 @@ def create_custom_model(input_dim, output_dim, nodes, n, name, ):
             model.compile(Adam(lr=0.001), loss='categorical_crossentropy',
                           metrics=['accuracy'])
         elif conti == 1:
-            model.add(Dense(2, activation='relu'))
+            model.add(Dense(1, activation='relu'))
             model.compile(RMSprop(lr=0.001), loss='mse',
                           metrics=['mae', 'mse'])
 

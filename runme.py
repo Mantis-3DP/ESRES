@@ -100,8 +100,8 @@ if "predict" in run_arg:
         predictions[problem] = []
         model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}.h5'.format(folder_problem_models, model_num)
         predictions[problem] = predict_problem(model_loca, user_1.X_machine, 0)
-    show_user_predictions(predictions, possible_problems, 10)
-    show_predictions(predictions, possible_problems, user_1.Y_problems, 10)
+    # show_user_predictions(predictions, possible_problems, 1)
+    show_predictions(predictions, possible_problems, user_1.Y_problems, 1)
 
     user_1.append_user()
 
@@ -115,10 +115,12 @@ if "predict" in run_arg:
             model_index = possible_problems.index(problem) # 0 4
             if predictions[problem][user] > 0.5:
                 print(predictions[problem][user])
-                model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}_.h5'.format(folder_measure_models, model_index)
-                ein_array = predict_problem(model_loca, [list(user_1.X_machine[user])], 1)
-                for array_loc, measure_name in enumerate(possible_measures[problem]):
-                    predictions[measure_name][user] = ein_array[0, array_loc]
+                for measure_index, measure_name in enumerate(possible_measures[problem]):
+                    model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}_{}.h5'.format(folder_measure_models, model_index, measure_index)
+                    ein_array = predict_problem(model_loca, [list(user_1.X_machine[user])], 1)
+
+                    predictions[measure_name][user] = ein_array
+    predictions = user_1.invers_scal(predictions)
 
     print(predictions)
 
