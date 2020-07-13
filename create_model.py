@@ -14,17 +14,19 @@ def create_custom_model(input_dim, output_dim, nodes, n, name, ):
         # Create model
         model = Sequential(name=name)
         model.add(Dense(nodes, input_dim=input_dim, activation='relu'))
-        model.add(Dropout(0.25))
-        model.add(Dense(nodes * 15 / 20, activation='relu'))
         if conti == 0:
+            model.add(Dropout(0.25))
+            model.add(Dense(nodes * 15 / 20, activation='relu'))
             model.add(Dropout(0.25))
             model.add(Dense(nodes * 10 / 20, activation='relu'))
             model.add(Dense(output_dim, activation='softmax'))
             model.compile(Adam(lr=0.001), loss='categorical_crossentropy',
                           metrics=['accuracy'])
         elif conti == 1:
+            model.add(Dense(nodes * 15 / 20, activation='relu'))
+            model.add(Dense(nodes * 10 / 20, activation='relu'))
             model.add(Dense(1, activation='relu'))
-            model.compile(RMSprop(lr=0.001), loss='mse',
+            model.compile(RMSprop(lr=0.0001), loss='mse',
                           metrics=['mae', 'mse'])
 
         return model
