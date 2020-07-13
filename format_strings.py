@@ -63,21 +63,25 @@ def show_user_predictions(predictions, possible_problems, possible_measures, amo
             temp_dict[problem] = predictions[problem][i]
         # Sort problems by value -> descending
         temp_dict = {k: v for k, v in sorted(temp_dict.items(), key=lambda item: item[1], reverse=True)}
-        print("\n The following problems were found in your Coldroom: \n")
-        for count, problem in enumerate(temp_dict):
-            print("{}. {} with an impact of {}%".format(count+1, problem, round(temp_dict[problem]*100 , 2)))
-        print("\n Based on those problems and your preferences, our system recommends the following measures: \n")
-        temp_dict.clear()
-        for measure in possible_measures.values():
-            for item in measure: #notwendig weil nested dictionary...
-                if item in predictions:
-                    temp_dict[item] = predictions[item][i] 
-        # Sort measures by value -> descending                    
-        temp_dict = {k: v for k, v in sorted(temp_dict.items(), key=lambda item: item[1], reverse=True)}
-        for count, measure in enumerate(temp_dict):
-            # for problem, measure in 
-            print("To solve the problem \"{}\": \n>> {}\nFor this measure we calculated an amortisation time of {} years\n".format(
-                getProblemByMeasure(possible_measures,measure), getMeasureDescription(measure), round(temp_dict[measure],2)))
+        if temp_dict["none"] >= 0.75:
+            print("Congratulations, there were no problems found by our system in your Coldroom.")
+        else:
+            print("\n The following problems were found in your Coldroom: \n")
+            for count, problem in enumerate(temp_dict):
+                print("{}. {} with an impact of {}%".format(count+1, problem, round(temp_dict[problem]*100 , 2)))
+            temp_dict.clear()
+            print("\n Based on those problems and your preferences, our system recommends the following measures: \n")
+
+            for measure in possible_measures.values():
+                for item in measure: #notwendig weil nested dictionary...
+                    if item in predictions:
+                        temp_dict[item] = predictions[item][i] 
+            # Sort measures by value -> descending                    
+            temp_dict = {k: v for k, v in sorted(temp_dict.items(), key=lambda item: item[1], reverse=True)}
+            for count, measure in enumerate(temp_dict):
+                # for problem, measure in 
+                print("To solve the problem \"{}\": \n>> {}\nFor this measure we calculated an amortisation time of {} years\n".format(
+                    getProblemByMeasure(possible_measures,measure), getMeasureDescription(measure), round(temp_dict[measure],2)))
 
 
 
