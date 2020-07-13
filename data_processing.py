@@ -49,8 +49,7 @@ class prepped_data:
     def get_data(self, type):
         # type asks if data is used for training or testing w/ unknown Y or testing w/ known Y
         if type == "train":
-            #self.dataset_train = shuffle(self.dataset_train)
-            pass
+            self.dataset_train = shuffle(self.dataset_train)
         if type == "test_known" or type == "train":
             dataset_problems = self.dataset_train[self.possible_problems]
             self.dataset_measures = self.dataset_train[np.hstack(list(self.measures.values()))]
