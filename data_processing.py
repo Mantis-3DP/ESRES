@@ -49,7 +49,8 @@ class prepped_data:
     def get_data(self, type):
         # type asks if data is used for training or testing w/ unknown Y or testing w/ known Y
         if type == "train":
-            self.dataset_train = shuffle(self.dataset_train)
+            #self.dataset_train = shuffle(self.dataset_train)
+            pass
         if type == "test_known" or type == "train":
             dataset_problems = self.dataset_train[self.possible_problems]
             dataset_measures = self.dataset_train[np.hstack(list(self.measures.values()))]
@@ -77,15 +78,20 @@ class prepped_data:
             self.X_machine, self.X_machine_split, self.X_user, self.X_user_split, y_problems, y_problems_split, self.Y_measures, self.Y_measures_split = train_test_split(
                 train_machine_scaled, train_user_scaled, dataset_problems, train_measures_scaled, test_size=0.1)
             self.Y_problems, _ = self.hotencode(y_problems)
-            self.Y_problems_split, self.n_classes = self.hotencode(y_problems_split)
+            self.Y_problems_split, self.n_classes_probs = self.hotencode(y_problems_split)
+            self.n_classes_measures = 1
             self.data_splitted = 1
+
+            # add collumn names back
+            self.Y_measures_split = pd.DataFrame(data=self.Y_measures_split, columns=list(dataset_measures.columns))
+
         else:
             self.X_machine = train_machine_scaled
             self.X_user = train_user_scaled
             if type == "test_known":
                 self.Y_problems = dataset_problems
                 self.Y_measures = measures_scaled
-
+        self.Y_measures = pd.DataFrame(data=self.Y_measures, columns=list(dataset_measures.columns))
 
 
         return

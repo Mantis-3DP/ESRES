@@ -74,7 +74,7 @@ if 'create_models' in run_arg:
     if 'for_problems' in run_arg:
         for model_num, problem in enumerate(possible_problems):
             create_all_models(train_1.X_machine, train_1.X_machine_split, train_1.Y_problems[problem],
-                              train_1.Y_problems_split[problem], len(train_1.feature_names), train_1.n_classes[problem], model_num, folder_problem_models, 0)
+                              train_1.Y_problems_split[problem], len(train_1.feature_names), train_1.n_classes_probs[problem], model_num, folder_problem_models, 0)
 
     if 'for_measures' in run_arg:
         for problem in possible_measures:
@@ -86,7 +86,7 @@ if 'create_models' in run_arg:
             for measure_num, measure in enumerate(possible_measures[problem]):
                 print(measure_num, measure)
                 create_all_models(train_2.X_machine, train_2.X_machine_split, train_2.Y_measures[measure],
-                              train_2.Y_measures_split[measure], len(train_2.feature_names), train_2.n_classes[measure], index_prob,
+                              train_2.Y_measures_split[measure], len(train_2.feature_names), 1, index_prob,
                               folder_measure_models, measure_num=measure_num)
 
 
@@ -115,7 +115,7 @@ if "predict" in run_arg:
             model_index = possible_problems.index(problem) # 0 4
             if predictions[problem][user] > 0.5:
                 print(predictions[problem][user])
-                model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}.h5'.format(folder_measure_models, model_index)
+                model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}_.h5'.format(folder_measure_models, model_index)
                 ein_array = predict_problem(model_loca, [list(user_1.X_machine[user])], 1)
                 for array_loc, measure_name in enumerate(possible_measures[problem]):
                     predictions[measure_name][user] = ein_array[0, array_loc]
