@@ -100,8 +100,6 @@ if "predict" in run_arg:
         predictions[problem] = []
         model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}.h5'.format(folder_problem_models, model_num)
         predictions[problem] = predict_problem(model_loca, user_1.X_machine, 0)
-    # show_user_predictions(predictions, possible_problems, 1)
-    show_predictions(predictions, possible_problems, user_1.Y_problems, 1)
 
     user_1.append_user()
 
@@ -122,7 +120,6 @@ if "predict" in run_arg:
                     predictions[measure_name][user] = ein_array
     predictions = user_1.invers_scal(predictions)
 
-    print(predictions)
 
 elif 'generate_data' in run_arg:
     # Liste mit ColdRoom Instanzen -> amount bestimmt Anzahl der generierten Daten, "mode2 ="setup" sorgt dafür, dass nur fehlerhafte daten mit maßnahmen und ohne Probleme generiert werden!" 
