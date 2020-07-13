@@ -61,11 +61,11 @@ possible_measures["Fan consumes too much energy"] = ["clean_fan", "new_fan"]
 possible_measures["People too long in the Room"] = ["install_countdown", "school_workers"]
 
 imp_vars = function_folder, possible_problems, feature_names, user_input, possible_measures
-
+"""
 for measure in possible_measures.values():
     for item in measure:
         print("Max value element : {} Min value element : {}".format(max(dataset_train[item]),  min(dataset_train[item])))
-
+"""
 
 if 'create_models' in run_arg:
 
@@ -98,7 +98,7 @@ if "predict" in run_arg:
     for model_num, problem in enumerate(possible_problems):
         all_users_predictions[problem] = []
         model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}.h5'.format(folder_problem_models, model_num)
-        predictions[problem] = predict_problem(model_loca, user_1.X_machine, 0)
+        all_users_predictions[problem] = predict_problem(model_loca, all_users.X_machine, 0)
 
 
     all_users.append_user()
@@ -110,19 +110,19 @@ if "predict" in run_arg:
     for user, row in enumerate(all_users.X_machine):
         # print("results for user {}".format(user))
         for problem in possible_measures: # probelm = "Fan consumes too much
-            print(problem)
+
             model_index = possible_problems.index(problem) # 0 4
-            if predictions[problem][user] > 0.5:
-                print(predictions[problem][user])
+            if all_users_predictions[problem][user] > 0.5:
+
                 for measure_index, measure_name in enumerate(possible_measures[problem]):
                     model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}_{}.h5'.format(folder_measure_models, model_index, measure_index)
-                    ein_array = predict_problem(model_loca, [list(user_1.X_machine[user])], 1)
+                    ein_array = predict_problem(model_loca, [list(all_users.X_machine[user])], 1)
 
-                    predictions[measure_name][user] = ein_array
+                    all_users_predictions[measure_name][user] = ein_array
 
 
-    predictions = user_1.invers_scal(predictions)
-    print("##############################")
+    predictions = all_users.invers_scal(all_users_predictions)
+
     show_user_predictions(all_users_predictions, possible_problems, possible_measures, len(all_users.X_machine))
 
 

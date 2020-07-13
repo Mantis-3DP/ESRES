@@ -77,7 +77,7 @@ def show_user_predictions(predictions, possible_problems, possible_measures, amo
                     if item in predictions:
                         temp_dict[item] = predictions[item][i] 
             # Sort measures by value -> descending                    
-            temp_dict = {k: v for k, v in sorted(temp_dict.items(), key=lambda item: item[1], reverse=True)}
+            temp_dict = {k: v for k, v in sorted(temp_dict.items(), key=lambda item: item[1], reverse=False)}
             for count, measure in enumerate(temp_dict):
                 # for problem, measure in 
                 print("To solve the problem \"{}\": \n>> {}\nFor this measure we calculated an amortisation time of {} years\n".format(
