@@ -58,7 +58,6 @@ class prepped_data:
 
         scaler = MinMaxScaler(feature_range=(0, 1))
         if self.dropped == 0 and type == "train":
-            # could also be solved with a loop TODO
             machine_scaled = scaler.fit_transform(dataset_machine)
             joblib.dump(scaler, str(self.function_folder) + '\\dataset_train_machine.gz')
             user_scaled = scaler.fit_transform(dataset_user)

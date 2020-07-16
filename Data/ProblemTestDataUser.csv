@@ -1,2 +1,2 @@
 load_transmission,load_people,n_person,load_light,load_fan,load_total,load_installed,new_measure_preferred,Fan consumes too much energy,Insulation insufficient,Light consumes too much energy,Light is on for too long,People too long in the Room,To many people in the Room,Installed Load too high,none,install_countdown,school_workers,clean_fan,new_fan
-0.44324811960000005,0.156,2,0.023253720000000002,0.079512026139,1.01792010532155,1.526880157982325,1.0,1,0,0,0,1,0,1,0,9.512937595129376,3.6824274561791133,52.843744571965885,38.31171481467526
+0.443,0.156,2,0.023,0.08,1.018,1.527,0.9,1,0,0,0,1,0,1,0,9.512937595129376,3.6824274561791133,52.843744571965885,38.31171481467526

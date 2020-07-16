@@ -7,7 +7,6 @@ from tensorflow.keras.optimizers import Adam, RMSprop
 
 def create_custom_model(input_dim, output_dim, nodes, n, name, ):
     def create_model(conti):
-        # Create model
         model = Sequential(name=name)
         model.add(Dense(nodes, input_dim=input_dim, activation='relu'))
         if conti == 0:
@@ -24,9 +23,7 @@ def create_custom_model(input_dim, output_dim, nodes, n, name, ):
             model.add(Dense(1, activation='relu'))
             model.compile(RMSprop(lr=0.0001), loss='mse',
                           metrics=['mae', 'mse'])
-
         return model
-
     return create_model
 
 def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, model_number, folder, **kwargs ):
@@ -44,15 +41,8 @@ def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, mod
     for create_model in models:
         model = create_model(measure)
         print('Model name:', model.name)
-        # history_callback =\
 
-        model.fit(X_train, Y_train,
-                  batch_size=10,
-                  epochs=20,
-                  # verbose=0,
-                  validation_data=(X_val, Y_val)
-                  )
-
+        model.fit(X_train, Y_train, batch_size=10, epochs=20, validation_data=(X_val, Y_val))
         if folder == "models_problem":
             model.save(Path(__file__).parent / 'models/{}/cold_system_{}.h5'.format(folder, model.name))
             print(Path(__file__).parent / 'models/{}/cold_system_{}.h5'.format(folder, model.name))
@@ -62,7 +52,22 @@ def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, mod
 
     return
 
+"""
+nodes =1
+name=1
+input_dim=1
+output_dim=1
 
+if nodes == 1:
 
+    model = Sequential(name=name)
+    model.add(Dense(nodes, input_dim=input_dim, activation='relu'))
+    model.add(Dropout(0.25))
+    model.add(Dense(nodes * 15 / 20, activation='relu'))
+    model.add(Dropout(0.25))
+    model.add(Dense(nodes * 10 / 20, activation='relu'))
+    model.add(Dense(output_dim, activation='softmax'))
+    model.compile(Adam(lr=0.001), loss='categorical_crossentropy',
+                    metrics=['accuracy'])
 
-
+"""
