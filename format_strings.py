@@ -68,7 +68,7 @@ def show_user_predictions(predictions, possible_problems, possible_measures, amo
         else:
             print("\n The following problems were found in your Coldroom: \n")
             for count, problem in enumerate(temp_dict):
-                print("{}. {} with an impact of {}%".format(count+1, problem, round(temp_dict[problem]*100 , 2)))
+                print("{}. {} with an certainty of {}%".format(count+1, problem, round(temp_dict[problem]*100 , 2)))
             temp_dict.clear()
             print("\n Based on those problems and your preferences, our system recommends the following measures: \n")
 
