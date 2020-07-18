@@ -1,9 +1,9 @@
-import pandas as pd
+import joblib
 import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 from sklearn.utils import shuffle
-from sklearn.model_selection import train_test_split
-import joblib
 
 
 class prepped_data:
@@ -22,7 +22,6 @@ class prepped_data:
         # removes the Datarows in which a problem is not present
         self.dataset_train = self.dataset_train[self.dataset_train[chosen_problem] == 1]
         self.dropped = 1
-
 
     def hotencode(self, y_split):
         y: dict = dict()
@@ -45,9 +44,8 @@ class prepped_data:
         if self.data_splitted == 1:
             self.X_machine_split = np.hstack((self.X_machine_split, self.X_user_split))
 
-
     def get_data(self, type):
-        # type asks if data is used for training or testing w/ unknown Y or testing w/ known Y
+
         if type == "train":
             self.dataset_train = shuffle(self.dataset_train)
         if type == "test_known" or type == "train":
@@ -81,7 +79,8 @@ class prepped_data:
             self.data_splitted = 1
 
             # add collumn names back
-            self.Y_measures_split = pd.DataFrame(data=self.Y_measures_split, columns=list(self.dataset_measures.columns))
+            self.Y_measures_split = pd.DataFrame(data=self.Y_measures_split,
+                                                 columns=list(self.dataset_measures.columns))
 
         else:
             self.X_machine = machine_scaled
@@ -91,9 +90,7 @@ class prepped_data:
                 self.Y_measures = measures_scaled
         self.Y_measures = pd.DataFrame(data=self.Y_measures, columns=list(self.dataset_measures.columns))
 
-
         return
-
 
     def invers_scal(self, predictions):
         scaled_predictions = pd.DataFrame(columns=self.dataset_measures.columns)
@@ -103,12 +100,6 @@ class prepped_data:
         scaled_predictions = scaler.inverse_transform(scaled_predictions)
         scaled_predictions = pd.DataFrame(data=scaled_predictions, columns=self.dataset_measures.columns)
         for measure in self.dataset_measures.columns:
-             predictions[measure] = np.array(scaled_predictions[measure])
+            predictions[measure] = np.array(scaled_predictions[measure])
 
         return predictions
-
-
-
-
-
-

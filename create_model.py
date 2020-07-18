@@ -1,8 +1,8 @@
 from pathlib import Path
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout
-from tensorflow.keras.optimizers import Adam, RMSprop
 
+from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam, RMSprop
 
 
 def create_custom_model(input_dim, output_dim, nodes, n, name, ):
@@ -24,10 +24,11 @@ def create_custom_model(input_dim, output_dim, nodes, n, name, ):
             model.compile(RMSprop(lr=0.0001), loss='mse',
                           metrics=['mae', 'mse'])
         return model
+
     return create_model
 
-def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, model_number, folder, **kwargs ):
 
+def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, model_number, folder, **kwargs):
     models = [create_custom_model(n_features, n_classes, 64, n=4, name='model_{}'.format(model_number))]
     if folder == "models_problem":
         measure = 0
@@ -51,6 +52,7 @@ def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, mod
             print(Path(__file__).parent / 'models/{}/cold_system_{}_{}.h5'.format(folder, model.name, measure_num))
 
     return
+
 
 """
 nodes =1

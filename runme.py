@@ -1,35 +1,34 @@
+import random
+import sys
+from pathlib import Path
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+from ColdRoom import generateRandomColdRooms
 from create_model import create_all_models
 from data_processing import prepped_data
 from format_strings import show_user_predictions
 from predict_problems import predict_problem
-from pathlib import Path
-import sys
-import tensorflow as tf
-import numpy as np
-from ColdRoom import generateRandomColdRooms
-import pandas as pd
-import random
 
 physical_devices = tf.config.list_physical_devices('GPU')
 try:
-  tf.config.experimental.set_memory_growth(physical_devices[0], True)
+    tf.config.experimental.set_memory_growth(physical_devices[0], True)
 except:
-  # Invalid device or cannot modify virtual devices once initialized.
-  pass
+    # Invalid device or cannot modify virtual devices once initialized.
+    pass
 
 run_arg = []
 for element in sys.argv:
     run_arg.append(element)
 print(run_arg)
 
-
 function_folder = Path(__file__).parent / "saved_functions"
 fileloca_train = Path(__file__).parent / "Data/ProblemTestData.csv"
-fileloca_user = Path(__file__).parent / "Data/ProblemTestDataUser.csv"
+fileloca_user = Path(__file__).parent / "Data/ProblemTestDataUser2.csv"
 folder_problem_models = "models_problem"
-folder_measure_models ="modeles_measure"
+folder_measure_models = "modeles_measure"
 dataset_train = pd.read_csv(fileloca_train)
-dataset_user =  pd.read_csv(fileloca_user)
+dataset_user = pd.read_csv(fileloca_user)
 possible_problems = [
     "Fan consumes too much energy",
     "Insulation insufficient",
@@ -48,11 +47,11 @@ feature_names = [
     "load_fan",
     "load_total",
     "load_installed",
-    ]
+]
 user_input = [
     "new_measure_preferred"
 ]
-possible_measures:dict = dict()
+possible_measures: dict = dict()
 possible_measures["Fan consumes too much energy"] = ["clean_fan", "new_fan"]
 possible_measures["People too long in the Room"] = ["install_countdown", "school_workers"]
 
@@ -77,19 +76,18 @@ if 'create_models' in run_arg:
             index_prob = possible_problems.index(problem)
             for measure_num, measure in enumerate(possible_measures[problem]):
                 create_all_models(train_2.X_machine, train_2.X_machine_split, train_2.Y_measures[measure],
-                              train_2.Y_measures_split[measure], len(train_2.feature_names), 1, index_prob,
-                              folder_measure_models, measure_num=measure_num)
-
+                                  train_2.Y_measures_split[measure], len(train_2.feature_names), 1, index_prob,
+                                  folder_measure_models, measure_num=measure_num)
 
 if "predict" in run_arg:
+    all_users_predictions: dict = dict()
     all_users = prepped_data(dataset_user, *imp_vars)
     all_users.dropped = 1
     all_users.get_data("test_known")
-
-    all_users_predictions: dict = dict()
     for model_num, problem in enumerate(possible_problems):
         all_users_predictions[problem] = []
-        model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}.h5'.format(folder_problem_models, model_num)
+        model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}.h5'.format(folder_problem_models,
+                                                                                        model_num)
         all_users_predictions[problem] = predict_problem(model_loca, all_users.X_machine, 0)
     all_users.append_user()
     for measure in possible_measures.values():
@@ -97,11 +95,12 @@ if "predict" in run_arg:
             all_users_predictions[item] = np.zeros(len(all_users.X_machine))
     predict_array = []
     for user, row in enumerate(all_users.X_machine):
-        for problem in possible_measures: # probelm = "Fan consumes too much
-            model_index = possible_problems.index(problem) # 0 4
+        for problem in possible_measures:
+            model_index = possible_problems.index(problem)
             if all_users_predictions[problem][user] > 0.5:
                 for measure_index, measure_name in enumerate(possible_measures[problem]):
-                    model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}_{}.h5'.format(folder_measure_models, model_index, measure_index)
+                    model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}_{}.h5'.format(
+                        folder_measure_models, model_index, measure_index)
                     predict_array = predict_problem(model_loca, [list(all_users.X_machine[user])], 1)
                     all_users_predictions[measure_name][user] = predict_array
     predictions = all_users.invers_scal(all_users_predictions)
@@ -144,7 +143,7 @@ elif 'generate_data' in run_arg:
             df_final.at[0, "new_fan"] = (df_final.at[0, "new_fan"] * df_final.at[0, "new_measure_preferred"])
         elif "install_countdown" in df_final.columns:
             df_final.at[0, "install_countdown"] = (
-                        df_final.at[0, "install_countdown"] * df_final.at[0, "new_measure_preferred"])
+                    df_final.at[0, "install_countdown"] * df_final.at[0, "new_measure_preferred"])
 
         df_ColdRoomsInclMeasures = pd.concat([df_ColdRoomsInclMeasures, df_final], ignore_index=True)
         df_ColdRoomsInclMeasures = df_ColdRoomsInclMeasures.fillna(0)
@@ -158,5 +157,3 @@ elif 'generate_data' in run_arg:
 
     else:
         print('didnt read csv')
-
-

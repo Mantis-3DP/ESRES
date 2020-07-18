@@ -2,7 +2,6 @@ import numpy as np
 
 
 def show_top_predictions(predictions, measure_names, Y_test, test_count):
-
     counter = 0
     num_top_values = 3
     for i in range(0, test_count):
@@ -29,10 +28,10 @@ def show_top_predictions(predictions, measure_names, Y_test, test_count):
         print(' ')
     print('wrong predictions {}%'.format(int(100 * (1 - (counter / (num_top_values * test_count))))))
 
-def show_predictions(predictions, measure_names, Y_test, test_count):
 
+def show_predictions(predictions, measure_names, Y_test, test_count):
     counter = 0
-    for i in range(0, test_count):   #100
+    for i in range(0, test_count):  # 100
         measure_values = []
         for measure in measure_names:
             measure_values.append(predictions[measure][i])
@@ -53,12 +52,13 @@ def show_predictions(predictions, measure_names, Y_test, test_count):
         print(' ')
     print('wrong predictions {}%'.format(int(100 * (1 - (counter / (len(measure_array) * test_count))))))
 
+
 def show_user_predictions(predictions, possible_problems, possible_measures, amount_user_data):
     print("############### EVALUATION COMPLETED ###############")
     print("###############  SEE RESULTS BELOW   ###############")
-    for i in range(0, amount_user_data):   
-        print("------ Results for user {} ------".format(i+1)) #i+1 to prevent "user0"
-        temp_dict:dict = dict()
+    for i in range(0, amount_user_data):
+        print("------ Results for user {} ------".format(i + 1))  # i+1 to prevent "user0"
+        temp_dict: dict = dict()
         for problem in possible_problems:
             temp_dict[problem] = predictions[problem][i]
         # Sort problems by value -> descending
@@ -68,34 +68,36 @@ def show_user_predictions(predictions, possible_problems, possible_measures, amo
         else:
             print("\n The following problems were found in your Coldroom: \n")
             for count, problem in enumerate(temp_dict):
-                print("{}. {} with an certainty of {}%".format(count+1, problem, round(temp_dict[problem]*100 , 2)))
+                print("{}. {} with a certainty of {}%".format(count + 1, problem, round(temp_dict[problem] * 100, 2)))
             temp_dict.clear()
             print("\n Based on those problems and your preferences, our system recommends the following measures: \n")
 
             for measure in possible_measures.values():
-                for item in measure: #notwendig weil nested dictionary...
+                for item in measure:  # notwendig weil nested dictionary...
                     if item in predictions:
-                        temp_dict[item] = predictions[item][i] 
-            # Sort measures by value -> descending                    
+                        temp_dict[item] = predictions[item][i]
+                        # Sort measures by value -> descending
             temp_dict = {k: v for k, v in sorted(temp_dict.items(), key=lambda item: item[1], reverse=False)}
             for count, measure in enumerate(temp_dict):
                 # for problem, measure in 
-                print("To solve the problem \"{}\": \n>> {}\nFor this measure we calculated an amortisation time of {} years\n".format(
-                    getProblemByMeasure(possible_measures,measure), getMeasureDescription(measure), round(temp_dict[measure],2)))
-
+                print(
+                    "To solve the problem \"{}\": \n>> {}\nFor this measure we calculated an amortisation time of {} years\n".format(
+                        getProblemByMeasure(possible_measures, measure), getMeasureDescription(measure),
+                        round(temp_dict[measure], 2)))
 
 
 def getMeasureDescription(input_measure):
     measureDescriptions = {
-        "clean_fan" : "Clean the fan of the refridgerant unit.",
-        "new_fan" : "Install a new fan in the Coldroom.",
-        "install_countdown" : "Install a timer that counts and displays the time of your workers in the Coldroom.",
-        "school_workers" : "Organize a workshop for your workers for time efficient working in the ColdRoom."
+        "clean_fan": "Clean the fan of the refridgerant unit.",
+        "new_fan": "Install a new fan in the Coldroom.",
+        "install_countdown": "Install a timer that counts and displays the time of your workers in the Coldroom.",
+        "school_workers": "Organize a workshop for your workers for time efficient working in the ColdRoom."
     }
     return measureDescriptions[input_measure]
 
+
 def getProblemByMeasure(possible_measures, input_measure):
-    linked_problem_measures:dict = dict()
+    linked_problem_measures: dict = dict()
     for problem in possible_measures:
         for measure in possible_measures[problem]:
             linked_problem_measures[measure] = problem
