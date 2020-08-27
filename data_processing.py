@@ -44,18 +44,17 @@ class prepped_data:
         if self.data_splitted == 1:
             self.X_machine_split = np.hstack((self.X_machine_split, self.X_user_split))
 
-    def get_data(self, type):
-
-        if type == "train":
+    def get_data(self, **kwargs):
+        if "train" in kwargs:
             self.dataset_train = shuffle(self.dataset_train)
-        if type == "test_known" or type == "train":
+        if "test_known" in kwargs or "train" in kwargs:
             dataset_problems = self.dataset_train[self.possible_problems]
             self.dataset_measures = self.dataset_train[np.hstack(list(self.measures.values()))]
         dataset_machine = self.dataset_train[self.feature_names]
         dataset_user = self.dataset_train[self.user_input]
 
         scaler = MinMaxScaler(feature_range=(0, 1))
-        if self.dropped == 0 and type == "train":
+        if self.dropped == 0 and "train" in kwargs:
             machine_scaled = scaler.fit_transform(dataset_machine)
             joblib.dump(scaler, str(self.function_folder) + '\\dataset_train_machine.gz')
             user_scaled = scaler.fit_transform(dataset_user)
@@ -67,10 +66,10 @@ class prepped_data:
             machine_scaled = scaler.transform(dataset_machine)
             scaler = joblib.load(str(self.function_folder) + '\\dataset_train_user.gz')
             user_scaled = scaler.transform(dataset_user)
-            if type == "test_known" or type == "train":
+            if "test_known" in kwargs or "train" in kwargs:
                 scaler = joblib.load(str(self.function_folder) + '\\dataset_train_measures.gz')
                 measures_scaled = scaler.transform(self.dataset_measures)
-        if type == "train":
+        if "train" in kwargs:
             self.X_machine, self.X_machine_split, self.X_user, self.X_user_split, y_problems, y_problems_split, self.Y_measures, self.Y_measures_split = train_test_split(
                 machine_scaled, user_scaled, dataset_problems, measures_scaled, test_size=0.1)
             self.Y_problems, _ = self.hotencode(y_problems)
@@ -85,21 +84,21 @@ class prepped_data:
         else:
             self.X_machine = machine_scaled
             self.X_user = user_scaled
-            if type == "test_known":
+            if "test_known" in kwargs:
                 self.Y_problems = dataset_problems
                 self.Y_measures = measures_scaled
-        self.Y_measures = pd.DataFrame(data=self.Y_measures, columns=list(self.dataset_measures.columns))
+                self.Y_measures = pd.DataFrame(data=self.Y_measures, columns=list(self.dataset_measures.columns))
 
         return
 
     def invers_scal(self, predictions):
-        scaled_predictions = pd.DataFrame(columns=self.dataset_measures.columns)
-        for measure in self.dataset_measures.columns:
+        scaled_predictions = pd.DataFrame(columns=np.hstack(list(self.measures.values()))) #self.dataset_measures.columns
+        for measure in np.hstack(list(self.measures.values())):
             scaled_predictions[measure] = predictions[measure]
         scaler = joblib.load(str(self.function_folder) + '\\dataset_train_measures.gz')
         scaled_predictions = scaler.inverse_transform(scaled_predictions)
-        scaled_predictions = pd.DataFrame(data=scaled_predictions, columns=self.dataset_measures.columns)
-        for measure in self.dataset_measures.columns:
+        scaled_predictions = pd.DataFrame(data=scaled_predictions, columns=np.hstack(list(self.measures.values())))
+        for measure in np.hstack(list(self.measures.values())):
             predictions[measure] = np.array(scaled_predictions[measure])
 
         return predictions

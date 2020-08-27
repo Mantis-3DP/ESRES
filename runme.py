@@ -9,7 +9,6 @@ from create_model import create_all_models
 from data_processing import prepped_data
 from format_strings import show_user_predictions
 from predict_problems import predict_problem
-
 physical_devices = tf.config.list_physical_devices('GPU')
 try:
     tf.config.experimental.set_memory_growth(physical_devices[0], True)
@@ -22,13 +21,16 @@ for element in sys.argv:
     run_arg.append(element)
 print(run_arg)
 
+# following section defines related folders
+# scale function from the data preprocessing are saved in the function folder
+# fileloca_train is the path to the Train data csv
+# fileloca_user is the path to the input data of a user. similar to the train data, but without the problem and measure section
 function_folder = Path(__file__).parent / "saved_functions"
 fileloca_train = Path(__file__).parent / "Data/ProblemTestData.csv"
-fileloca_user = Path(__file__).parent / "Data/ProblemTestDataUser2.csv"
+fileloca_user = Path(__file__).parent / "Data/ProblemTestDataUser.csv"
 folder_problem_models = "models_problem"
 folder_measure_models = "modeles_measure"
-dataset_train = pd.read_csv(fileloca_train)
-dataset_user = pd.read_csv(fileloca_user)
+# possible_problems is a list of the problems that could be detected of the data csv. These are the labels
 possible_problems = [
     "Fan consumes too much energy",
     "Insulation insufficient",
@@ -39,6 +41,7 @@ possible_problems = [
     "Installed Load too high",
     "none"
 ]
+# feature names is a list of the features
 feature_names = [
     "load_transmission",
     "load_people",
@@ -48,18 +51,24 @@ feature_names = [
     "load_total",
     "load_installed",
 ]
+# user_input is a list of the features which a user could input
 user_input = [
     "new_measure_preferred"
 ]
+# possible_measures is a dict that connects possible_problems with measures that are related to that problem
 possible_measures: dict = dict()
 possible_measures["Fan consumes too much energy"] = ["clean_fan", "new_fan"]
 possible_measures["People too long in the Room"] = ["install_countdown", "school_workers"]
 
+# read data csv and save the data as an array
+dataset_train = pd.read_csv(fileloca_train)
+dataset_user = pd.read_csv(fileloca_user)
 imp_vars = function_folder, possible_problems, feature_names, user_input, possible_measures
 
-if 'create_models' in run_arg:
-
-    if 'for_problems' in run_arg:
+# to retrain the models runme.py needs "create_models" as argument
+if "create_models" in run_arg:
+    # differentiate between training of problem detection models or measure detection related to detected probelms
+    if "for_problems" in run_arg:
         train_1 = prepped_data(dataset_train, *imp_vars)
         train_1.get_data("train")
         for model_num, problem in enumerate(possible_problems):
@@ -67,7 +76,7 @@ if 'create_models' in run_arg:
                               train_1.Y_problems_split[problem], len(train_1.feature_names),
                               train_1.n_classes_probs[problem], model_num, folder_problem_models)
 
-    if 'for_measures' in run_arg:
+    if "for_measures" in run_arg:
         for problem in possible_measures:
             train_2 = prepped_data(dataset_train, *imp_vars)
             train_2.drop_rows(problem)
@@ -79,11 +88,12 @@ if 'create_models' in run_arg:
                                   train_2.Y_measures_split[measure], len(train_2.feature_names), 1, index_prob,
                                   folder_measure_models, measure_num=measure_num)
 
+# use case runme.py needs arg "predict"
 if "predict" in run_arg:
     all_users_predictions: dict = dict()
     all_users = prepped_data(dataset_user, *imp_vars)
     all_users.dropped = 1
-    all_users.get_data("test_known")
+    all_users.get_data()
     for model_num, problem in enumerate(possible_problems):
         all_users_predictions[problem] = []
         model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}.h5'.format(folder_problem_models,
@@ -103,6 +113,7 @@ if "predict" in run_arg:
                         folder_measure_models, model_index, measure_index)
                     predict_array = predict_problem(model_loca, [list(all_users.X_machine[user])], 1)
                     all_users_predictions[measure_name][user] = predict_array
+    # the data was scaled to make it processable by the ANN, to get the real values the scale needs to be reverted
     predictions = all_users.invers_scal(all_users_predictions)
     show_user_predictions(all_users_predictions, possible_problems, possible_measures, len(all_users.X_machine))
 

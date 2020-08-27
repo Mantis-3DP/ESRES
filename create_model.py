@@ -24,7 +24,6 @@ def create_custom_model(input_dim, output_dim, nodes, n, name, ):
             model.compile(RMSprop(lr=0.0001), loss='mse',
                           metrics=['mae', 'mse'])
         return model
-
     return create_model
 
 
@@ -50,26 +49,4 @@ def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, mod
         else:
             model.save(Path(__file__).parent / 'models/{}/cold_system_{}_{}.h5'.format(folder, model.name, measure_num))
             print(Path(__file__).parent / 'models/{}/cold_system_{}_{}.h5'.format(folder, model.name, measure_num))
-
     return
-
-
-"""
-nodes =1
-name=1
-input_dim=1
-output_dim=1
-
-if nodes == 1:
-
-    model = Sequential(name=name)
-    model.add(Dense(nodes, input_dim=input_dim, activation='relu'))
-    model.add(Dropout(0.25))
-    model.add(Dense(nodes * 15 / 20, activation='relu'))
-    model.add(Dropout(0.25))
-    model.add(Dense(nodes * 10 / 20, activation='relu'))
-    model.add(Dense(output_dim, activation='softmax'))
-    model.compile(Adam(lr=0.001), loss='categorical_crossentropy',
-                    metrics=['accuracy'])
-
-"""
