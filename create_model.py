@@ -4,7 +4,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam, RMSprop
 
 
-def create_custom_model(input_dim, output_dim, nodes, n, name, ):
+def create_custom_model(input_dim, output_dim, nodes, name, ):
     def create_model(conti):
         model = Sequential(name=name)
         model.add(Dense(nodes, input_dim=input_dim, activation='relu'))
@@ -32,7 +32,7 @@ def create_custom_model(input_dim, output_dim, nodes, n, name, ):
 
 def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, model_number, folder, **kwargs):
     # to optimize the models this section could be looped with different model settings
-    models = [create_custom_model(n_features, n_classes, 64, n=4, name='model_{}'.format(model_number))]
+    models = [create_custom_model(n_features, n_classes, 64, name='model_{}'.format(model_number))]
     if folder == "models_problem":
         measure = 0
     else:
