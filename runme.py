@@ -67,7 +67,7 @@ imp_vars = function_folder, possible_problems, feature_names, user_input, possib
 
 # to retrain the models runme.py needs "create_models" as argument
 if "create_models" in run_arg:
-    # differentiate between training of problem detection models or measure detection related to detected probelms
+    # differentiate between training of problem detection models or measure detection related to detected problems
     if "for_problems" in run_arg:
         train_1 = prepped_data(dataset_train, *imp_vars)
         train_1.get_data("train")
@@ -88,7 +88,7 @@ if "create_models" in run_arg:
                                   train_2.Y_measures_split[measure], len(train_2.feature_names), 1, index_prob,
                                   folder_measure_models, measure_num=measure_num)
 
-# use case runme.py needs arg "predict"
+# use case: runme.py needs arg "predict"
 if "predict" in run_arg:
     all_users_predictions: dict = dict()
     all_users = prepped_data(dataset_user, *imp_vars)
