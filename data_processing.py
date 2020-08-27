@@ -19,7 +19,7 @@ class prepped_data:
         self.data_splitted = 0
 
     def drop_rows(self, chosen_problem):
-        # removes the Datarows in which a problem is not present
+        # removes the Datarows in which a specific problem is not present
         self.dataset_train = self.dataset_train[self.dataset_train[chosen_problem] == 1]
         self.dropped = 1
 
@@ -39,12 +39,14 @@ class prepped_data:
         return Y, n_classes
 
     def append_user(self):
+        # for measure evaluation the user_input is a feature. This section adds it to the dataframe
         self.X_machine = np.hstack((self.X_machine, self.X_user))
         self.feature_names = np.hstack((self.feature_names, self.user_input))
         if self.data_splitted == 1:
             self.X_machine_split = np.hstack((self.X_machine_split, self.X_user_split))
 
     def get_data(self, **kwargs):
+        # create dataframe with train, val or test data
         if "train" in kwargs:
             self.dataset_train = shuffle(self.dataset_train)
         if "test_known" in kwargs or "train" in kwargs:
@@ -55,6 +57,7 @@ class prepped_data:
 
         scaler = MinMaxScaler(feature_range=(0, 1))
         if self.dropped == 0 and "train" in kwargs:
+            # scale train data
             machine_scaled = scaler.fit_transform(dataset_machine)
             joblib.dump(scaler, str(self.function_folder) + '\\dataset_train_machine.gz')
             user_scaled = scaler.fit_transform(dataset_user)
@@ -62,6 +65,7 @@ class prepped_data:
             measures_scaled = scaler.fit_transform(self.dataset_measures)
             joblib.dump(scaler, str(self.function_folder) + '\\dataset_train_measures.gz')
         else:
+            # use scale of train data on test data
             scaler = joblib.load(str(self.function_folder) + '\\dataset_train_machine.gz')
             machine_scaled = scaler.transform(dataset_machine)
             scaler = joblib.load(str(self.function_folder) + '\\dataset_train_user.gz')
@@ -70,6 +74,7 @@ class prepped_data:
                 scaler = joblib.load(str(self.function_folder) + '\\dataset_train_measures.gz')
                 measures_scaled = scaler.transform(self.dataset_measures)
         if "train" in kwargs:
+            # split data into train and validation data
             self.X_machine, self.X_machine_split, self.X_user, self.X_user_split, y_problems, y_problems_split, self.Y_measures, self.Y_measures_split = train_test_split(
                 machine_scaled, user_scaled, dataset_problems, measures_scaled, test_size=0.1)
             self.Y_problems, _ = self.hotencode(y_problems)

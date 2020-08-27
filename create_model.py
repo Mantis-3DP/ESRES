@@ -1,5 +1,4 @@
 from pathlib import Path
-
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam, RMSprop
