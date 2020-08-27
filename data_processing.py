@@ -92,7 +92,7 @@ class prepped_data:
         return
 
     def invers_scal(self, predictions):
-        scaled_predictions = pd.DataFrame(columns=np.hstack(list(self.measures.values()))) #self.dataset_measures.columns
+        scaled_predictions = pd.DataFrame(columns=np.hstack(list(self.measures.values())))
         for measure in np.hstack(list(self.measures.values())):
             scaled_predictions[measure] = predictions[measure]
         scaler = joblib.load(str(self.function_folder) + '\\dataset_train_measures.gz')
