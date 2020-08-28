@@ -7,7 +7,7 @@ from tensorflow.keras.optimizers import Adam, RMSprop
 def create_custom_model(input_dim, output_dim, nodes, name, ):
     def create_model(conti):
         model = Sequential(name=name)
-        model.add(Dense(64, input_dim=input_dim, activation='relu'))
+        model.add(Dense(nodes, input_dim=input_dim, activation='relu'))
         if conti == 0:
             # models for problem detection
             # output is binary not contious
