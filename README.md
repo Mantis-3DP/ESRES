@@ -7,8 +7,6 @@ Expert System for Refrigeration Systems
 3. create models by running rumme.py with arg for_problems and again with arg for_measures
 4. Adjust filelocation of user/test data in runme.py 
 5. run runme.py with the argument predict
-6. ????
-7. Profit
 
 ## changing model settings
 open create_models.py and change model settings in function create_model

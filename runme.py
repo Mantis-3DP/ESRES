@@ -9,6 +9,7 @@ from create_model import create_all_models
 from data_processing import prepped_data
 from format_strings import show_user_predictions
 from predict_problems import predict_problem
+
 physical_devices = tf.config.list_physical_devices('GPU')
 try:
     tf.config.experimental.set_memory_growth(physical_devices[0], True)
