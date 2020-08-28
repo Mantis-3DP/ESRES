@@ -1,35 +1,37 @@
+import random
+import sys
+from pathlib import Path
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+from ColdRoom import generateRandomColdRooms
 from create_model import create_all_models
 from data_processing import prepped_data
 from format_strings import show_user_predictions
 from predict_problems import predict_problem
-from pathlib import Path
-import sys
-import tensorflow as tf
-import numpy as np
-from ColdRoom import generateRandomColdRooms
-import pandas as pd
-import random
 
 physical_devices = tf.config.list_physical_devices('GPU')
 try:
-  tf.config.experimental.set_memory_growth(physical_devices[0], True)
+    tf.config.experimental.set_memory_growth(physical_devices[0], True)
 except:
-  # Invalid device or cannot modify virtual devices once initialized.
-  pass
+    # Invalid device or cannot modify virtual devices once initialized.
+    pass
 
 run_arg = []
 for element in sys.argv:
     run_arg.append(element)
 print(run_arg)
 
-
+# following section defines related folders
+# scale function from the data preprocessing are saved in the function folder
+# fileloca_train is the path to the Train data csv
+# fileloca_user is the path to the input data of a user. similar to the train data, but without the problem and measure section
 function_folder = Path(__file__).parent / "saved_functions"
 fileloca_train = Path(__file__).parent / "Data/ProblemTestData.csv"
 fileloca_user = Path(__file__).parent / "Data/ProblemTestDataUser.csv"
 folder_problem_models = "models_problem"
-folder_measure_models ="modeles_measure"
-dataset_train = pd.read_csv(fileloca_train)
-dataset_user =  pd.read_csv(fileloca_user)
+folder_measure_models = "modeles_measure"
+# possible_problems is a list of the problems that could be detected of the data csv. These are the labels
 possible_problems = [
     "Fan consumes too much energy",
     "Insulation insufficient",
@@ -40,6 +42,7 @@ possible_problems = [
     "Installed Load too high",
     "none"
 ]
+# feature names is a list of the features
 feature_names = [
     "load_transmission",
     "load_people",
@@ -48,31 +51,33 @@ feature_names = [
     "load_fan",
     "load_total",
     "load_installed",
-    ]
+]
+# user_input is a list of the features which a user could input
 user_input = [
     "new_measure_preferred"
 ]
-possible_measures:dict = dict()
+# possible_measures is a dict that connects possible_problems with measures that are related to that problem
+possible_measures: dict = dict()
 possible_measures["Fan consumes too much energy"] = ["clean_fan", "new_fan"]
 possible_measures["People too long in the Room"] = ["install_countdown", "school_workers"]
 
+# read data csv and save the data as an array
+dataset_train = pd.read_csv(fileloca_train)
+dataset_user = pd.read_csv(fileloca_user)
 imp_vars = function_folder, possible_problems, feature_names, user_input, possible_measures
-"""
-for measure in possible_measures.values():
-    for item in measure:
-        print("Max value element : {} Min value element : {}".format(max(dataset_train[item]),  min(dataset_train[item])))
-"""
 
-if 'create_models' in run_arg:
-
-    if 'for_problems' in run_arg:
+# to retrain the models runme.py needs "create_models" as argument
+if "create_models" in run_arg:
+    # differentiate between training of problem detection models or measure detection related to detected problems
+    if "for_problems" in run_arg:
         train_1 = prepped_data(dataset_train, *imp_vars)
         train_1.get_data("train")
         for model_num, problem in enumerate(possible_problems):
             create_all_models(train_1.X_machine, train_1.X_machine_split, train_1.Y_problems[problem],
-                              train_1.Y_problems_split[problem], len(train_1.feature_names), train_1.n_classes_probs[problem], model_num, folder_problem_models)
+                              train_1.Y_problems_split[problem], len(train_1.feature_names),
+                              train_1.n_classes_probs[problem], model_num, folder_problem_models)
 
-    if 'for_measures' in run_arg:
+    if "for_measures" in run_arg:
         for problem in possible_measures:
             train_2 = prepped_data(dataset_train, *imp_vars)
             train_2.drop_rows(problem)
@@ -81,44 +86,36 @@ if 'create_models' in run_arg:
             index_prob = possible_problems.index(problem)
             for measure_num, measure in enumerate(possible_measures[problem]):
                 create_all_models(train_2.X_machine, train_2.X_machine_split, train_2.Y_measures[measure],
-                              train_2.Y_measures_split[measure], len(train_2.feature_names), 1, index_prob,
-                              folder_measure_models, measure_num=measure_num)
+                                  train_2.Y_measures_split[measure], len(train_2.feature_names), 1, index_prob,
+                                  folder_measure_models, measure_num=measure_num)
 
-
+# use case: runme.py needs arg "predict"
 if "predict" in run_arg:
+    all_users_predictions: dict = dict()
     all_users = prepped_data(dataset_user, *imp_vars)
     all_users.dropped = 1
-    all_users.get_data("test_known")
-
-    all_users_predictions: dict = dict()
+    all_users.get_data()
     for model_num, problem in enumerate(possible_problems):
         all_users_predictions[problem] = []
-        model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}.h5'.format(folder_problem_models, model_num)
+        model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}.h5'.format(folder_problem_models,
+                                                                                        model_num)
         all_users_predictions[problem] = predict_problem(model_loca, all_users.X_machine, 0)
-
-
     all_users.append_user()
-
     for measure in possible_measures.values():
         for item in measure:
             all_users_predictions[item] = np.zeros(len(all_users.X_machine))
-    ein_array = []
+    predict_array = []
     for user, row in enumerate(all_users.X_machine):
-        # print("results for user {}".format(user))
-        for problem in possible_measures: # probelm = "Fan consumes too much
-
-            model_index = possible_problems.index(problem) # 0 4
+        for problem in possible_measures:
+            model_index = possible_problems.index(problem)
             if all_users_predictions[problem][user] > 0.5:
-
                 for measure_index, measure_name in enumerate(possible_measures[problem]):
-                    model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}_{}.h5'.format(folder_measure_models, model_index, measure_index)
-                    ein_array = predict_problem(model_loca, [list(all_users.X_machine[user])], 1)
-
-                    all_users_predictions[measure_name][user] = ein_array
-
-
+                    model_loca = Path(__file__).parent / 'models/{}/cold_system_model_{}_{}.h5'.format(
+                        folder_measure_models, model_index, measure_index)
+                    predict_array = predict_problem(model_loca, [list(all_users.X_machine[user])], 1)
+                    all_users_predictions[measure_name][user] = predict_array
+    # the data was scaled to make it processable by the ANN, to get the real values the scale needs to be reverted
     predictions = all_users.invers_scal(all_users_predictions)
-
     show_user_predictions(all_users_predictions, possible_problems, possible_measures, len(all_users.X_machine))
 
 
@@ -158,7 +155,7 @@ elif 'generate_data' in run_arg:
             df_final.at[0, "new_fan"] = (df_final.at[0, "new_fan"] * df_final.at[0, "new_measure_preferred"])
         elif "install_countdown" in df_final.columns:
             df_final.at[0, "install_countdown"] = (
-                        df_final.at[0, "install_countdown"] * df_final.at[0, "new_measure_preferred"])
+                    df_final.at[0, "install_countdown"] * df_final.at[0, "new_measure_preferred"])
 
         df_ColdRoomsInclMeasures = pd.concat([df_ColdRoomsInclMeasures, df_final], ignore_index=True)
         df_ColdRoomsInclMeasures = df_ColdRoomsInclMeasures.fillna(0)
@@ -172,5 +169,3 @@ elif 'generate_data' in run_arg:
 
     else:
         print('didnt read csv')
-
-
