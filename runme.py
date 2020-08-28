@@ -27,7 +27,7 @@ print(run_arg)
 # fileloca_train is the path to the Train data csv
 # fileloca_user is the path to the input data of a user. similar to the train data, but without the problem and measure section
 function_folder = Path(__file__).parent / "saved_functions"
-fileloca_train = Path(__file__).parent / "Data/ProblemTestData.csv"
+fileloca_train = Path(__file__).parent / "Data/TrainData.csv"
 fileloca_user = Path(__file__).parent / "Data/ProblemTestDataUser.csv"
 folder_problem_models = "models_problem"
 folder_measure_models = "modeles_measure"
