@@ -45,19 +45,19 @@ class prepped_data:
         if self.data_splitted == 1:
             self.X_machine_split = np.hstack((self.X_machine_split, self.X_user_split))
 
-    def get_data(self, **kwargs):
+    def get_data(self, *args):
         # create dataframe with train, val or test data
-        if "train" in kwargs:
+        if "train" in args:
             self.dataset_train = shuffle(self.dataset_train)
-        if "test_known" in kwargs or "train" in kwargs:
+        if "test_known" in args or "train" in args:
             dataset_problems = self.dataset_train[self.possible_problems]
             self.dataset_measures = self.dataset_train[np.hstack(list(self.measures.values()))]
         dataset_machine = self.dataset_train[self.feature_names]
         dataset_user = self.dataset_train[self.user_input]
 
         scaler = MinMaxScaler(feature_range=(0, 1))
-        if self.dropped == 0 and "train" in kwargs:
-            # scale train data
+        if self.dropped == 0 and "train" in args:
+            # scale train data and save the scaling function
             machine_scaled = scaler.fit_transform(dataset_machine)
             joblib.dump(scaler, str(self.function_folder) + '\\dataset_train_machine.gz')
             user_scaled = scaler.fit_transform(dataset_user)
@@ -70,10 +70,10 @@ class prepped_data:
             machine_scaled = scaler.transform(dataset_machine)
             scaler = joblib.load(str(self.function_folder) + '\\dataset_train_user.gz')
             user_scaled = scaler.transform(dataset_user)
-            if "test_known" in kwargs or "train" in kwargs:
+            if "test_known" in args or "train" in args:
                 scaler = joblib.load(str(self.function_folder) + '\\dataset_train_measures.gz')
                 measures_scaled = scaler.transform(self.dataset_measures)
-        if "train" in kwargs:
+        if "train" in args:
             # split data into train and validation data
             self.X_machine, self.X_machine_split, self.X_user, self.X_user_split, y_problems, y_problems_split, self.Y_measures, self.Y_measures_split = train_test_split(
                 machine_scaled, user_scaled, dataset_problems, measures_scaled, test_size=0.1)
@@ -89,7 +89,7 @@ class prepped_data:
         else:
             self.X_machine = machine_scaled
             self.X_user = user_scaled
-            if "test_known" in kwargs:
+            if "test_known" in args:
                 self.Y_problems = dataset_problems
                 self.Y_measures = measures_scaled
                 self.Y_measures = pd.DataFrame(data=self.Y_measures, columns=list(self.dataset_measures.columns))
