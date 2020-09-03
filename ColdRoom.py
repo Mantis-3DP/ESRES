@@ -13,7 +13,7 @@ class ColdRoom:
     ######## Constructor ########
 
     def __init__(self, *args, **kwargs):
-        if "length" not in kwargs:  # TODO kann man so besser auf user eingaben abstimmen
+        if "length" not in kwargs:
             self.length = random.randint(3 * 100, 6 * 100) / 100
         else:
             self.length = kwargs["length"]
@@ -97,7 +97,7 @@ class ColdRoom:
                 self.t_light = self.t_person + random.randint(1 * 10, 5 * 10) / 10
                 self.problems.append("Light is on for too long")
 
-            if self.problemOptions["fan_problem"]:  # KANN MAN GGFLS AUCH NOCH IN LEISTUNG UND ZEIT AUFTEILEN !!
+            if self.problemOptions["fan_problem"]:
                 self.load_fan_electrical = 210 / 108 * self.volume * (random.randint(110, 175) / 100)
                 self.t_fan = random.randint(16 * 10, 18 * 10) / 10
                 self.problems.append("Fan consumes too much energy")
@@ -235,7 +235,7 @@ class ColdRoom:
                     self.calculate_load_machine(self.load_fan_electrical_default, 1, self.t_fan_default) / 24000)
         savings = diff * 24 * 365 * self.energycost
         # Annahme Kosten neuer Lüfter:
-        investion = 1450  # TODO Theoretisch skalierbar mit Volumen -> Wollen wir das?
+        investion = 1450
         a_years = investion / savings
         return a_years
 

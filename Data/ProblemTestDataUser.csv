@@ -1,3 +1,3 @@
-load_transmission,load_people,n_person,load_light,load_fan,load_total,load_installed,new_measure_preferred
+load_transmission,load_people,n_person,load_light,load_fan,load_total,load_installed,user_preference
 0.443,0.156,2,0.023,0.08,1.018,1.527,0.9
 0.45517901,0.22,5,0.025776412037037042,0.06725300231481482,1.1139022153101852,1.2252924368412037,1.0

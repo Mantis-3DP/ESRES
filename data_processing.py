@@ -85,7 +85,6 @@ class prepped_data:
             # add collumn names back
             self.Y_measures_split = pd.DataFrame(data=self.Y_measures_split,
                                                  columns=list(self.dataset_measures.columns))
-
         else:
             self.X_machine = machine_scaled
             self.X_user = user_scaled
