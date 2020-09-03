@@ -22,10 +22,9 @@ for element in sys.argv:
     run_arg.append(element)
 print(run_arg)
 
-# following section defines related folders
-# scale function from the data preprocessing are saved in the function folder
-# fileloca_train is the path to the Train data csv
-# fileloca_user is the path to the input data of a user. similar to the train data, but without the problem and measure section
+# following section defines related folders scale function from the data preprocessing are saved in the function
+# folder fileloca_train is the path to the Train data csv fileloca_user is the path to the input data of a user.
+# similar to the train data, but without the problem and measure section
 function_folder = Path(__file__).parent / "saved_functions"
 fileloca_train = Path(__file__).parent / "Data/TrainData.csv"
 fileloca_user = Path(__file__).parent / "Data/ProblemTestDataUser.csv"
@@ -133,8 +132,7 @@ elif 'generate_data' in run_arg:
         # sorgt dafür, dass alle problem spalten existieren und jede zelle in jeder zeile mit 0 oder 1 gefüllt ist
         df_temp_features = pd.DataFrame([cr.dataRow[:-1]], columns=feature_names)  # contains features of one coldroom
         df_temp_userInput = pd.DataFrame([random.randint(9, 11) / 10],
-                                         columns=user_input)  # contains userInput -> in diesem fall nur eine spalte mit zufalls values
-        # FUNFACT: Vielleicht sollten wir die Zufallswerte ändern...das sieht irgendwie komisch aus mit den Zahlen in der Reihenfolge...#insidejob xD
+                                         columns=user_input)
         temp_array_problems = []
         for problem in possible_problems:
             if problem in cr.dataRow[-1]:
@@ -144,14 +142,13 @@ elif 'generate_data' in run_arg:
         df_problems = pd.DataFrame([temp_array_problems],
                                    columns=possible_problems)  # contains problems of one coldroom
         df_preMid = df_temp_features.join(
-            df_temp_userInput)  # Das kann man sicherlich auch schöner lösen, wenn dus hinter problems haben willst, dann join es einfach einen join später
-        # Falls wir das doch an einer bestimmten Stelle brauchen, kann man noch die insert Funktion bemühen, aber ich glaube so passt es
+            df_temp_userInput)
         df_mid = df_preMid.join(df_problems)
         cr.calculateDefaultValues()
 
         # JoinDataFrames
         df_final = df_mid.join(cr.add_measure_columns())
-        if "new_fan" in df_final.columns:  # KeyError prevention weil die spalten noch nicht existieren -> kann man auch noch besser machen TODO
+        if "new_fan" in df_final.columns:
             df_final.at[0, "new_fan"] = (df_final.at[0, "new_fan"] * df_final.at[0, "new_measure_preferred"])
         elif "install_countdown" in df_final.columns:
             df_final.at[0, "install_countdown"] = (
