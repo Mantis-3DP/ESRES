@@ -10,7 +10,7 @@ def create_custom_model(input_dim, output_dim, nodes, name, ):
         model.add(Dense(nodes, input_dim=input_dim, activation='relu'))
         if conti == 0:
             # models for problem detection
-            # output is binary not continious
+            # output is binary not continuous
             model.add(Dense(nodes * 15 / 20, activation='relu'))
             model.add(Dropout(0.25))
             model.add(Dense(nodes * 10 / 20, activation='relu'))
@@ -19,7 +19,7 @@ def create_custom_model(input_dim, output_dim, nodes, name, ):
                           metrics=['accuracy'])
         elif conti == 1:
             # models for measure evaluation
-            # output is continious
+            # output is continuous
             model.add(Dense(nodes * 15 / 20, activation='relu'))
             model.add(Dense(nodes * 10 / 20, activation='relu'))
             model.add(Dense(1, activation='relu'))
@@ -32,7 +32,7 @@ def create_custom_model(input_dim, output_dim, nodes, name, ):
 def create_all_models(X_train, X_val, Y_train, Y_val, n_features, n_classes, model_number, folder, **kwargs):
     # to optimize the models this section could be looped with different model settings
     models = [create_custom_model(n_features, n_classes, 64, name='model_{}'.format(model_number))]
-    # dicide if output of the model should be binary for the problem section or continious for the measure section
+    # decide if output of the model should be binary for the problem section or continuous for the measure section
     if folder == "models_problem":
         measure = 0
     else:
