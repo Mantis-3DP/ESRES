@@ -119,7 +119,8 @@ if "predict" in run_arg:
 
 
 elif 'generate_data' in run_arg:
-    # Liste mit ColdRoom Instanzen -> amount bestimmt Anzahl der generierten Daten, "mode2 ="setup" sorgt dafür, dass nur fehlerhafte daten mit maßnahmen und ohne Probleme generiert werden!" 
+    # Liste mit ColdRoom Instanzen -> amount bestimmt Anzahl der generierten Daten, "mode2 ="setup" sorgt dafür,
+    # dass nur fehlerhafte daten mit maßnahmen und ohne Probleme generiert werden!"
     coldRooms = generateRandomColdRooms(amount=3, csv=False, filename="testNEW", fault_share=1, object=True)
     # Dateiname für generierte Daten
     filename = "Data/" + "ProblemTestDataUser" + ".csv"
